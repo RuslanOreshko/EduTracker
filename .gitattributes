@@ -1,0 +1,12 @@
+* text=auto
+
+# Python завжди LF
+*.py text eol=lf
+
+# Shell теж LF
+*.sh text eol=lf
+
+# Бінарні файли
+*.png binary
+*.jpg binary
+*.sqlite3 binary
