@@ -1,23 +1,22 @@
-from datetime import datetime, date
+from datetime import date
 from pydantic import BaseModel, ConfigDict
+from typing import Dict, Optional
+import json
 
 
 class ScheduleRecordOut(BaseModel):
-    id: int
-    schedule_date: date
-    schedule_file_id: str
-    schedule_file_name: str
+    teacher: str 
+    date_from: date
+    date_to: date
 
-    group_emails_list: str | None
-    teachers_emails_list: str | None
+    total_lessons: int
 
-    schedule_type: str | None
-    bell_type: str | None
+    by_date: Dict[date, int]
+    by_group: Dict[str, int]
+    by_subject: Dict[str, int]
 
-    schedule_for_groups: str | None
-    schedule_for_teachers: str | None
+    schedule_type_breakdown: Optional[dict[str, int]] = None
 
-    created_at: datetime
-    updated_at: datetime
+        
 
-    model_config = ConfigDict(from_attributes=True)
+        
