@@ -24,4 +24,5 @@ venv/
 Thumbs.db
 
 # Datebase
-date/
+data/*.sqlite3
+*.sqlite3
