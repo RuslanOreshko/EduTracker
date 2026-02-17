@@ -30,28 +30,39 @@ class StatsService:
             if day.schedule_type:
                 schedule_type_brakdown[day.schedule_type] += 1 
 
-            sfg = day.schedule_for_groups
+            sfg = day.schedule_for_teachers or {}
 
-            for group_key, group_payload in (sfg or {}).items():
-                for weekday, wd_payload in (group_payload or {}).items():
-                    if weekday == "email":
+            weekday = day.schedule_date.strftime("%A")
+
+            for teacher_key, teacher_payload in sfg.items():
+                if not isinstance(teacher_payload, dict):
+                    continue
+
+                day_block = teacher_payload.get(weekday)
+                if not isinstance(day_block, dict):
+                    continue
+
+                lessons = day_block.get("lessons") or []
+                if not lessons:
+                    continue
+
+                for lesson in lessons:
+                    tneme = (lesson or{}).get("teacher_name")
+                    if not tneme:
                         continue
-                    lessons = (wd_payload or {}).get("lessons") or []
 
-                    for lesson in lessons:
-                        tname = (lesson or {}).get("teacher_name")
-                        if not tname:
-                            continue
+                    if not self._teacher_match(tneme, teacher_norm, split_by_slash=True):
+                        continue
 
-                        if self._teacher_match(tname, teacher_norm, split_teachers_by_slash):
-                            total += 1
-                            by_date[day.schedule_date] += 1
+                    total += 1
+                    by_date[day.schedule_date] += 1
+                    
+                    group_name = (lesson or{}).get("group_name") or "-"
+                    by_group[group_name] += 1
 
-                            group_name = (lesson or {}).get("group_name") or group_key
-                            by_group[group_name] += 1
+                    subject = (lesson or {}).get("lesson_name") or "-"
+                    by_subject[subject] += 1
 
-                            subject = (lesson or {}).get("lesson_name") or "—"
-                            by_subject[subject] += 1
 
         return ScheduleRecordOut(
             teacher=teacher,

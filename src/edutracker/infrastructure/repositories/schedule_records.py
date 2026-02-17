@@ -14,7 +14,7 @@ from edutracker.infrastructure.db.models import ScheduleRecord
 class scheduleDayRow:
     schedule_date: date
     schedule_type: Optional[str]
-    schedule_for_groups: dict
+    schedule_for_teachers: dict
 
 
 class ScheduleRepository:
@@ -26,7 +26,7 @@ class ScheduleRepository:
             select(
                 ScheduleRecord.schedule_date,
                 ScheduleRecord.schedule_type,
-                ScheduleRecord.schedule_for_groups,
+                ScheduleRecord.schedule_for_teachers,
             )
             .where(ScheduleRecord.schedule_date.between(date_from, date_to))
             .order_by(ScheduleRecord.schedule_date.asc())
@@ -36,11 +36,11 @@ class ScheduleRepository:
 
         result: list[scheduleDayRow] = []
 
-        for schedule_date, scheduele_type, schedule_for_groups in rows:
-            if not schedule_for_groups:
+        for schedule_date, scheduele_type, schedule_for_teachers in rows:
+            if not schedule_for_teachers:
                 continue
 
-            sfg = schedule_for_groups
+            sfg = schedule_for_teachers
             if isinstance(sfg, str):
                 try:
                     sfg = json.loads(sfg)
@@ -54,7 +54,7 @@ class ScheduleRepository:
                 scheduleDayRow(
                     schedule_date=schedule_date,
                     schedule_type=scheduele_type,
-                    schedule_for_groups=sfg,
+                    schedule_for_teachers=sfg,
                 )
             )
         return result
