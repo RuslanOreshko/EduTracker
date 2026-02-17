@@ -2,8 +2,8 @@ from datetime import date
 from fastapi import APIRouter, Depends, Query
 
 from edutracker.api.deps.stats import get_stats_servise
-from edutracker.domain.services.stats_service import StatsService
-from edutracker.schemas.schedule_records import ScheduleRecordOut
+from edutracker.application.services.stats_service import StatsService
+from edutracker.api.v1.schemas.schedule_records import ScheduleRecordOut
 
 router = APIRouter(tags=["schedule_records"])
 

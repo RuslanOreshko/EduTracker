@@ -6,7 +6,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parents[3] 
 
 class Settings(BaseSettings):
-    DB_PATH: Path = BASE_DIR / "infrastructure" / "db" / "edutracker.sqlite3"
+    DB_PATH: Path = BASE_DIR / "data"  / "edutracker.sqlite3"
     DEBUG: bool = True
 
     model_config = SettingsConfigDict(

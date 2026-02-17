@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from edutracker.api.deps.deps import get_db
 from edutracker.infrastructure.repositories.schedule_records import ScheduleRepository
-from edutracker.domain.services.stats_service import StatsService
+from edutracker.application.services.stats_service import StatsService
 
 
 

@@ -9,15 +9,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from edutracker.infrastructure.db.models import ScheduleRecord
-
-@dataclass(frozen=True)
-class scheduleDayRow:
-    schedule_date: date
-    schedule_type: Optional[str]
-    schedule_for_teachers: dict
+from edutracker.application.interfaces.schedule_repository import scheduleDayRow
+from edutracker.application.interfaces.schedule_repository import IScheduleRepository
 
 
-class ScheduleRepository:
+
+class ScheduleRepository(IScheduleRepository):
     def __init__(self, db: Session):
         self._db = db
 
