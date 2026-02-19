@@ -6,6 +6,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 
+
 # venv
 .venv/
 venv/
@@ -15,13 +16,16 @@ venv/
 .env
 .env.*
 
+
 # IDE
 .vscode/
 .idea/
 
+
 # OS
 .DS_Store
 Thumbs.db
+
 
 # Datebase
 data/*.sqlite3

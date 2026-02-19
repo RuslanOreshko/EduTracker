@@ -9,10 +9,10 @@ class ScheduleRecordOut(BaseModel):
     date_from: date
     date_to: date
 
-    total_lessons: int
+    total_lessons: float
 
-    by_date: Dict[date, int]
-    by_group: Dict[str, int]
-    by_subject: Dict[str, int]
+    by_date: Dict[date, float]
+    by_group: Dict[str, float]
+    by_subject: Dict[str, float]
 
     schedule_type_breakdown: Optional[dict[str, int]] = None
