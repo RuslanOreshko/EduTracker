@@ -1,5 +1,6 @@
 from datetime import date
 from collections import Counter
+from typing import Any
 
 from edutracker.application.interfaces.schedule_repository import IScheduleRepository
 from edutracker.api.v1.schemas.schedule_records import ScheduleRecordOut
@@ -35,6 +36,8 @@ class TeacherStatsService:
         teacher_norm = self._matcher.norm(teacher)
         filters = filters or []
 
+        seen: set[tuple] = set()
+
         for day in days:
             if day.schedule_type:
                 schedule_type_breakdown[day.schedule_type] += 1
@@ -43,6 +46,18 @@ class TeacherStatsService:
 
             for lesson in self._extractor.extract(day, weekday=weekday):
                 teacher_field = (lesson or{}).get("teacher_name") or ""
+
+                lesson_id = (
+                    day.schedule_date,
+                    self._clean(lesson.get("lesson_number")),
+                    self._clean(lesson.get("group_name")),
+                    self._clean(lesson.get("lesson_name")),
+                    self._clean(lesson.get("classroom")),
+                )
+
+                if lesson_id in seen:
+                    continue
+                seen.add(lesson_id)
 
                 share = self._share_calc.calc(
                     teacher_field=teacher_field,
@@ -78,3 +93,14 @@ class TeacherStatsService:
     
     def _round_dict(self, d: dict, ndigits: int = 2) -> dict:
         return {k: round(v, ndigits) for k, v in d.items()}
+    
+    def _clean(self, v: Any) -> str:
+        if v is None:
+            return ""
+        
+        s = str(v).strip()
+
+        if s.lower() == "none":
+            return ""
+        
+        return s
