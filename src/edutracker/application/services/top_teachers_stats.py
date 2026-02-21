@@ -53,18 +53,7 @@ class TopTeachersStats:
 
         top = totals.most_common(limit)
         return [(name, round(val, 2)) for name, val in top]
- 
 
-    def _clean(self, v: Any) -> str:
-        if v is None:
-            return ""
-        
-        s = str(v).strip()
-
-        if s.lower() == "none":
-            return ""
-        
-        return s
     
     def _split_teacher(self, teacher_field: Any) -> list[tuple[str, float]]:
         if not teacher_field or not isinstance(teacher_field, str):

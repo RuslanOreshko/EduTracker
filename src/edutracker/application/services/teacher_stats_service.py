@@ -1,9 +1,8 @@
 from datetime import date
 from collections import Counter
-from typing import Any
 
 from edutracker.application.interfaces.schedule_repository import IScheduleRepository
-from edutracker.api.v1.schemas.schedule_records import ScheduleRecordOut
+from edutracker.api.v1.schemas.teachers_stats import ScheduleRecordOut
 from edutracker.application.interfaces.LessonFilters import ILessonFilter
 
 from edutracker.application.services.stats.teacher_matcher import TeacherMatcher
@@ -28,7 +27,7 @@ class TeacherStatsService:
         teacher: str,
         date_from: date,
         date_to: date,
-        split_teachers_by_slash: bool = False,
+        split_teachers_by_slash: bool = True,
         filters: list[ILessonFilter] | None = None 
     ) -> ScheduleRecordOut:
         days = self._schedule_repo.get_days_in_range(date_from, date_to)
@@ -93,16 +92,6 @@ class TeacherStatsService:
             schedule_type_breakdown=dict(schedule_type_breakdown) if schedule_type_breakdown else None
         )
     
+
     def _round_dict(self, d: dict, ndigits: int = 2) -> dict:
         return {k: round(v, ndigits) for k, v in d.items()}
-    
-    def _clean(self, v: Any) -> str:
-        if v is None:
-            return ""
-        
-        s = str(v).strip()
-
-        if s.lower() == "none":
-            return ""
-        
-        return s

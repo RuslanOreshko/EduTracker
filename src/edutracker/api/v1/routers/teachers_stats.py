@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Query
 
 from edutracker.api.deps.stats import get_stats_servise
 from edutracker.application.services.teacher_stats_service import TeacherStatsService
-from edutracker.api.v1.schemas.schedule_records import ScheduleRecordOut
+from edutracker.api.v1.schemas.teachers_stats import ScheduleRecordOut
 
 from edutracker.application.filters.subject import SubjectFilter
 from edutracker.application.filters.group import GroupFilter
@@ -20,7 +20,7 @@ def teacher_stats(
     subject: str | None = Query(None),
     group: str | None = Query(None),
 
-    split_teachers_by_slash: bool = Query(None),
+    split_teachers_by_slash: bool = Query(True),
 
     service: TeacherStatsService = Depends(get_stats_servise),
 ):
