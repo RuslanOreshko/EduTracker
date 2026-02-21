@@ -11,7 +11,7 @@ from edutracker.application.filters.group import GroupFilter
 from edutracker.application.services.stats.date_default import academic_year_start
 
 
-router = APIRouter(tags=["stats-teacher"])
+router = APIRouter(prefix="/teachers",tags=["Teachers"])
 
 @router.get("/teacher", response_model=ScheduleRecordOut)
 def teacher_stats(

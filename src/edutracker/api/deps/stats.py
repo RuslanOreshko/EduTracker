@@ -2,7 +2,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from edutracker.api.deps.get_database import get_db
-from edutracker.infrastructure.repositories.schedule_records import ScheduleRepository
+from edutracker.infrastructure.repositories.schedule_repository import ScheduleRepository
 from edutracker.application.services.teacher_stats_service import TeacherStatsService
 
 

@@ -5,11 +5,11 @@ from sqlalchemy.orm import Session
 from edutracker.api.v1.schemas.top_teachers import TopTacherItem, TopTeachersOut
 from edutracker.application.services.stats.date_default import academic_year_start
 from edutracker.application.services.top_teachers_service import TopTeachersService
-from edutracker.infrastructure.repositories.schedule_records import ScheduleRepository
+from edutracker.infrastructure.repositories.schedule_repository import ScheduleRepository
 from edutracker.api.deps.get_database import get_db
 
 
-router = APIRouter(prefix="/top-teacher", tags=["top-teacher"])
+router = APIRouter(prefix="/top-teacher", tags=["Teachers"])
 
 
 @router.get("/teachers/top", response_model=TopTeachersOut)

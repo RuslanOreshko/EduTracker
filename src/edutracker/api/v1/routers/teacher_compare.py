@@ -7,12 +7,12 @@ from edutracker.application.services.stats.date_default import academic_year_sta
 from edutracker.api.deps.get_database import get_db
 
 from edutracker.api.v1.schemas.teacher_compare import TeacherCompareOut
-from edutracker.infrastructure.repositories.schedule_records import ScheduleRepository
+from edutracker.infrastructure.repositories.schedule_repository import ScheduleRepository
 from edutracker.application.services.teacher_stats_service import TeacherStatsService
 from edutracker.application.services.teachers_compare_service import TeacherCompareService
 
 
-router = APIRouter(prefix="/teachers", tags=["compare-teacher"])
+router = APIRouter(prefix="/teachers", tags=["Teachers"])
 
 @router.get("/teacher/compare", response_model=TeacherCompareOut)
 def compare_teachers(
