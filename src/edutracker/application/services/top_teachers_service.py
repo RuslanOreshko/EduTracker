@@ -11,7 +11,7 @@ from edutracker.application.common.cleaner import ValueCleaner
 
 
 
-class TopTeachersStats:
+class TopTeachersService:
     def __init__(self, schedule_repo: IScheduleRepository):
         self._schedule_repo = schedule_repo
         self._matcher = TeacherMatcher()

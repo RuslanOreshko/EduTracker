@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from edutracker.api.v1.schemas.top_teachers import TopTacherItem, TopTeachersOut
 from edutracker.application.services.stats.date_default import academic_year_start
-from edutracker.application.services.top_teachers_stats import TopTeachersStats
+from edutracker.application.services.top_teachers_service import TopTeachersService
 from edutracker.infrastructure.repositories.schedule_records import ScheduleRepository
 from edutracker.api.deps.deps import get_db
 
@@ -23,7 +23,7 @@ def top_teachers(
     date_from = date_from or academic_year_start(date_to)
 
     repo = ScheduleRepository(db)
-    service = TopTeachersStats(repo)
+    service = TopTeachersService(repo)
 
     top = service.top_teacher(date_from=date_from, date_to=date_to, limit=limit)
 

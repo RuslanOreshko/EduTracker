@@ -17,7 +17,7 @@ class TeacherCompareSide(BaseModel):
 # Різниця між викладачами
 class ComparisonBlock(BaseModel):
     winner: Literal["teacher_a", "teacher_b", "tie"]
-    difference_lessons: float
+    difference_lesson: float
     defference_percent: float
 
 
