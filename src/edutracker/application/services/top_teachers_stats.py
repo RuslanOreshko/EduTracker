@@ -7,6 +7,8 @@ from edutracker.application.interfaces.schedule_repository import IScheduleRepos
 from edutracker.application.services.stats.lesson_extractor import LessonExtractor
 from edutracker.application.services.stats.teacher_matcher import TeacherMatcher
 
+from edutracker.application.common.cleaner import ValueCleaner
+
 
 
 class TopTeachersStats:
@@ -35,10 +37,10 @@ class TopTeachersStats:
 
                 lesson_id = (
                     day.schedule_date,
-                    self._clean(lesson.get("lesson_number")),
-                    self._clean(lesson.get("group_name")),
-                    self._clean(lesson.get("lesson_name")),
-                    self._clean(lesson.get("classroom")),
+                    ValueCleaner.clean(lesson.get("lesson_number")),
+                    ValueCleaner.clean(lesson.get("group_name")),
+                    ValueCleaner.clean(lesson.get("lesson_name")),
+                    ValueCleaner.clean(lesson.get("classroom")),
                 )
 
                 if lesson_id in seen:

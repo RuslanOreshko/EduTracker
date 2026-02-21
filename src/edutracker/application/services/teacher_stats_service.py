@@ -11,6 +11,8 @@ from edutracker.application.services.stats.stats_aggregator import StatsAggregat
 from edutracker.application.services.stats.lesson_extractor import LessonExtractor
 from edutracker.application.services.stats.teacher_share_calculator import TeacherShareCalculator
 
+from edutracker.application.common.cleaner import ValueCleaner
+
 
 class TeacherStatsService:
     def __init__(self, schedule_repo: IScheduleRepository):
@@ -49,10 +51,10 @@ class TeacherStatsService:
 
                 lesson_id = (
                     day.schedule_date,
-                    self._clean(lesson.get("lesson_number")),
-                    self._clean(lesson.get("group_name")),
-                    self._clean(lesson.get("lesson_name")),
-                    self._clean(lesson.get("classroom")),
+                    ValueCleaner.clean(lesson.get("lesson_number")),
+                    ValueCleaner.clean(lesson.get("group_name")),
+                    ValueCleaner.clean(lesson.get("lesson_name")),
+                    ValueCleaner.clean(lesson.get("classroom")),
                 )
 
                 if lesson_id in seen:
