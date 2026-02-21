@@ -8,14 +8,16 @@ from edutracker.api.v1.schemas.teachers_stats import ScheduleRecordOut
 from edutracker.application.filters.subject import SubjectFilter
 from edutracker.application.filters.group import GroupFilter
 
+from edutracker.application.services.stats.date_default import academic_year_start
 
-router = APIRouter(tags=["schedule_records"])
+
+router = APIRouter(tags=["stats-teacher"])
 
 @router.get("/teacher", response_model=ScheduleRecordOut)
 def teacher_stats(
     teacher: str = Query(..., min_length=2),
-    date_from: date = Query(...),
-    date_to: date = Query(...),
+    date_from: date | None = Query(default=None),
+    date_to: date | None = Query(default=None),
 
     subject: str | None = Query(None),
     group: str | None = Query(None),
@@ -24,6 +26,11 @@ def teacher_stats(
 
     service: TeacherStatsService = Depends(get_stats_servise),
 ):
+    # Якщо не вказана дата вручну, тоді викликається метод academic_year_start
+    # Він повератє дату від початку навчального року
+    date_to = date_to or date.today()
+    date_from = date_from or academic_year_start(date_to)
+
     filters = []
 
     if subject:

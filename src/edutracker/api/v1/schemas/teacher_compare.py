@@ -5,7 +5,7 @@ from typing import Literal
 # Назва групи/предмету, так кількість зайнять 
 class NameCount(BaseModel):
     name: str
-    count: int
+    count: float
 
 # Ім'я викладача, загальна кількість зайнять, та список груп/предметів, які він вів
 class TeacherCompareSide(BaseModel):

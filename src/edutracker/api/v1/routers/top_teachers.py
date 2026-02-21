@@ -6,10 +6,10 @@ from edutracker.api.v1.schemas.top_teachers import TopTacherItem, TopTeachersOut
 from edutracker.application.services.stats.date_default import academic_year_start
 from edutracker.application.services.top_teachers_service import TopTeachersService
 from edutracker.infrastructure.repositories.schedule_records import ScheduleRepository
-from edutracker.api.deps.deps import get_db
+from edutracker.api.deps.get_database import get_db
 
 
-router = APIRouter(prefix="/top-teacher", tags=["TopTeachers"])
+router = APIRouter(prefix="/top-teacher", tags=["top-teacher"])
 
 
 @router.get("/teachers/top", response_model=TopTeachersOut)
