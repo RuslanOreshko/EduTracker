@@ -1,13 +1,13 @@
-
 from datetime import date
 from collections import Counter
-from typing import Any
 
 from edutracker.application.interfaces.schedule_repository import IScheduleRepository
+
 from edutracker.application.services.stats.lesson_extractor import LessonExtractor
 from edutracker.application.services.stats.teacher_matcher import TeacherMatcher
-
 from edutracker.application.common.cleaner import ValueCleaner
+from edutracker.application.services.stats.split_teacher import SplitTeacher
+
 
 
 
@@ -16,6 +16,7 @@ class TopTeachersService:
         self._schedule_repo = schedule_repo
         self._matcher = TeacherMatcher()
         self._extractor = LessonExtractor()
+        self._split_teacher = SplitTeacher(self._matcher)
 
     def top_teacher(
         self,
@@ -48,27 +49,10 @@ class TopTeachersService:
                 seen.add(lesson_id)
 
                 teacher_field = lesson.get("teacher_name")
-                for teacher_norm, share in self._split_teacher(teacher_field):
+                for teacher_norm, share in self._split_teacher.split_teacher(teacher_field):
                     totals[teacher_norm] += share
 
         top = totals.most_common(limit)
         return [(name, round(val, 2)) for name, val in top]
 
     
-    def _split_teacher(self, teacher_field: Any) -> list[tuple[str, float]]:
-        if not teacher_field or not isinstance(teacher_field, str):
-            return []
-        
-        parts_raw = [p.strip() for p in teacher_field.split("/") if p.strip()]
-        if not parts_raw:
-            return []
-        
-        parts_norm = [self._matcher.norm(p) for p in parts_raw]
-        n = len(parts_norm)
-        share = 1.0 / n
-
-        out: list[tuple[str, float]] = []
-        for p in parts_norm:
-            out.append((p, share))
-        
-        return out
