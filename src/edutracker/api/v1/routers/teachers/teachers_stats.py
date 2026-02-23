@@ -2,7 +2,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, Query
 
 from edutracker.api.deps.stats import get_stats_servise
-from edutracker.application.services.teacher_stats_service import TeacherStatsService
+from edutracker.application.services.teachers.teacher_stats_service import TeacherStatsService
 from edutracker.api.v1.schemas.teachers_stats import ScheduleRecordOut
 
 from edutracker.application.filters.subject import SubjectFilter
@@ -38,10 +38,21 @@ def teacher_stats(
     if group:
         filters.append(GroupFilter(group))
 
-    return service.teacher_stats(
+    result = service.teacher_stats(
         teacher=teacher,
         date_from=date_from,
         date_to=date_to,
         split_teachers_by_slash=split_teachers_by_slash,
         filters=filters,
     )
+
+    return ScheduleRecordOut(
+        teacher=result.teacher,
+        date_from=result.date_from,
+        date_to=result.date_to,
+        total_lessons=result.total_lessons,
+        by_date=result.by_date,
+        by_group=result.by_group,
+        by_subject=result.by_subject,
+        schedule_type_breakdown=result.schedule_type_breakdown,
+    )   

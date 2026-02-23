@@ -4,15 +4,15 @@ from sqlalchemy.orm import Session
 
 from edutracker.api.v1.schemas.top_teachers import TopTacherItem, TopTeachersOut
 from edutracker.application.services.stats.date_default import academic_year_start
-from edutracker.application.services.top_teachers_service import TopTeachersService
+from edutracker.application.services.teachers.top_teachers_service import TopTeachersService
 from edutracker.infrastructure.repositories.schedule_repository import ScheduleRepository
 from edutracker.api.deps.get_database import get_db
 
 
-router = APIRouter(prefix="/top-teacher", tags=["Teachers"])
+router = APIRouter(prefix="/teachers", tags=["Teachers"])
 
 
-@router.get("/teachers/top", response_model=TopTeachersOut)
+@router.get("/teacher/top", response_model=TopTeachersOut)
 def top_teachers(
     date_from: date | None = Query(default=None),
     date_to: date | None = Query(default=None),

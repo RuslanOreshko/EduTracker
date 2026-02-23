@@ -6,14 +6,19 @@ from edutracker.application.interfaces.schedule_repository import IScheduleRepos
 from edutracker.application.services.stats.lesson_extractor import LessonExtractor
 from edutracker.application.services.stats.teacher_matcher import TeacherMatcher
 from edutracker.application.common.cleaner import ValueCleaner
-from edutracker.application.services.stats.split_teacher import SplitTeacher
+from edutracker.application.common.split_teacher import SplitTeacher
 
+from edutracker.application.services.stats.schedule_days_provider import ScheduleDayProvider
+from edutracker.infrastructure.parsers.schedule_json_parser import ScheduleJsonParser
 
 
 
 class TopTeachersService:
     def __init__(self, schedule_repo: IScheduleRepository):
-        self._schedule_repo = schedule_repo
+        self._repo = schedule_repo
+        self._parser = ScheduleJsonParser()
+        self._days = ScheduleDayProvider(self._repo, self._parser)
+
         self._matcher = TeacherMatcher()
         self._extractor = LessonExtractor()
         self._split_teacher = SplitTeacher(self._matcher)
@@ -24,7 +29,7 @@ class TopTeachersService:
         date_to: date,
         limit: int = 5,
     ) -> list[tuple[str, float]]:
-        days = self._schedule_repo.get_days_in_range(date_from, date_to)
+        days = self._days.get_days(date_from, date_to)
 
         totals: Counter[str] = Counter()
         seen: set[tuple] = set()

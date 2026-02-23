@@ -6,13 +6,20 @@ from edutracker.application.interfaces.schedule_repository import IScheduleRepos
 
 from edutracker.application.services.stats.lesson_extractor import LessonExtractor
 from edutracker.application.services.stats.teacher_matcher import TeacherMatcher
-from edutracker.application.services.stats.split_teacher import SplitTeacher
+from edutracker.application.common.split_teacher import SplitTeacher
+
+from edutracker.application.services.stats.schedule_days_provider import ScheduleDayProvider
+from edutracker.infrastructure.parsers.schedule_json_parser import ScheduleJsonParser
+
 
 WORKDAYS = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"}
 
 class AverageLessonsService:
     def __init__(self, schedule_repo: IScheduleRepository):
         self._repo = schedule_repo
+        self._parser = ScheduleJsonParser()
+        self._days = ScheduleDayProvider(self._repo, self._parser)
+
         self._extractor = LessonExtractor()
         self._matcher = TeacherMatcher()
         self._split_teacher = SplitTeacher(self._matcher)
@@ -23,7 +30,7 @@ class AverageLessonsService:
         date_to: date,
         teacher: Optional[str] = None,
     ) -> dict:
-        days = self._repo.get_days_in_range(date_from, date_to)
+        days = self._days.get_days(date_from, date_to)
 
         totals = Counter()
         workdays_seen: set[date] = set()

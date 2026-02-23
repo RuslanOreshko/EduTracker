@@ -8,8 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from edutracker.infrastructure.db.models import ScheduleRecord
-from edutracker.application.interfaces.schedule_repository import scheduleDayRow
-from edutracker.application.interfaces.schedule_repository import IScheduleRepository
+from edutracker.application.interfaces.schedule_repository import IScheduleRepository, ScheduleDayRawRow
 
 
 
@@ -17,7 +16,7 @@ class ScheduleRepository(IScheduleRepository):
     def __init__(self, db: Session):
         self._db = db
 
-    def get_days_in_range(self, date_from: date, date_to: date) -> list[scheduleDayRow]:
+    def get_days_in_range(self, date_from: date, date_to: date) -> list[ScheduleDayRawRow]:
         stmt = (
             select(
                 ScheduleRecord.schedule_date,
@@ -30,28 +29,15 @@ class ScheduleRepository(IScheduleRepository):
 
         rows = (self._db.execute(stmt)).all()
 
-        result: list[scheduleDayRow] = []
-
-        for schedule_date, scheduele_type, schedule_for_teachers in rows:
-            if not schedule_for_teachers:
-                continue
-
-            sfg = schedule_for_teachers
-            if isinstance(sfg, str):
-                try:
-                    sfg = json.loads(sfg)
-                except json.JSONDecodeError:
-                    continue
-
-            if not isinstance(sfg, dict):
-                continue
-
+        result: list[ScheduleDayRawRow] = []
+        for schedule_date, schedule_type, schedule_for_teachers in rows:
             result.append(
-                scheduleDayRow(
+                ScheduleDayRawRow(
                     schedule_date=schedule_date,
-                    schedule_type=scheduele_type,
-                    schedule_for_teachers=sfg,
+                    schedule_type=schedule_type,
+                    schedule_for_teachers_raw=schedule_for_teachers,
                 )
             )
         return result
+        
         

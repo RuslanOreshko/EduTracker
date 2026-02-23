@@ -2,7 +2,7 @@ from datetime import date, timedelta
 from collections import Counter
 from typing import Optional
 
-from edutracker.application.services.teacher_stats_service import TeacherStatsService
+from edutracker.application.services.teachers.teacher_stats_service import TeacherStatsService
 from edutracker.api.v1.schemas.peak_load import (
     TeacherPeakLoadOut, PeakDayOut, PeakWeekOut, PeakMonthOut
 )

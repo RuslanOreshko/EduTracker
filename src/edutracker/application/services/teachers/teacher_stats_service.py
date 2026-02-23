@@ -2,7 +2,7 @@ from datetime import date
 from collections import Counter
 
 from edutracker.application.interfaces.schedule_repository import IScheduleRepository
-from edutracker.api.v1.schemas.teachers_stats import ScheduleRecordOut
+from edutracker.application.dto.teacher_stats_result import TeacherStatsResult
 from edutracker.application.interfaces.LessonFilters import ILessonFilter
 
 from edutracker.application.services.stats.teacher_matcher import TeacherMatcher
@@ -10,13 +10,18 @@ from edutracker.application.services.stats.stats_aggregator import StatsAggregat
 from edutracker.application.services.stats.lesson_extractor import LessonExtractor
 from edutracker.application.services.stats.teacher_share_calculator import TeacherShareCalculator
 
+from edutracker.application.services.stats.schedule_days_provider import ScheduleDayProvider
+from edutracker.infrastructure.parsers.schedule_json_parser import ScheduleJsonParser
+
 from edutracker.application.common.cleaner import ValueCleaner
 
 
 class TeacherStatsService:
     def __init__(self, schedule_repo: IScheduleRepository):
-        self._schedule_repo = schedule_repo
-        
+        self._repo = schedule_repo
+        self._parser = ScheduleJsonParser()
+        self._days = ScheduleDayProvider(self._repo, self._parser)
+
         self._schedule_repo = schedule_repo
         self._matcher = TeacherMatcher()
         self._share_calc = TeacherShareCalculator(self._matcher)
@@ -29,8 +34,8 @@ class TeacherStatsService:
         date_to: date,
         split_teachers_by_slash: bool = True,
         filters: list[ILessonFilter] | None = None 
-    ) -> ScheduleRecordOut:
-        days = self._schedule_repo.get_days_in_range(date_from, date_to)
+    ) -> TeacherStatsResult:
+        days = self._days.get_days(date_from, date_to)
 
         schedule_type_breakdown = Counter()
         agg = StatsAggregator(by_date=Counter(), by_group=Counter(), by_subject=Counter())
@@ -81,7 +86,7 @@ class TeacherStatsService:
 
                 agg.add(day.schedule_date, lesson, share)
 
-        return ScheduleRecordOut(
+        return TeacherStatsResult(
             teacher=teacher,
             date_from=date_from,
             date_to=date_to,

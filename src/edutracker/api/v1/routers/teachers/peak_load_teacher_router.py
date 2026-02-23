@@ -6,8 +6,8 @@ from edutracker.api.deps.get_database import get_db
 from edutracker.application.services.stats.date_default import academic_year_start
 from edutracker.infrastructure.repositories.schedule_repository import ScheduleRepository
 
-from edutracker.application.services.peak_load_teacher_service import TeacherPeakLoadService
-from edutracker.application.services.teacher_stats_service import TeacherStatsService
+from edutracker.application.services.teachers.peak_load_teacher_service import TeacherPeakLoadService
+from edutracker.application.services.teachers.teacher_stats_service import TeacherStatsService
 from edutracker.api.v1.schemas.peak_load import TeacherPeakLoadOut
 
 

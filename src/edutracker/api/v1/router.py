@@ -3,11 +3,11 @@ from edutracker.api.v1.routers.health import router as health_router
 from edutracker.api.v1.routers.root import router as root_router
 from edutracker.api.v1.routers.debug import router as debug_router
 
-from edutracker.api.v1.routers.top_teachers import router as teacher_top_router
-from edutracker.api.v1.routers.teachers_stats import router as teacher_stats_router
-from edutracker.api.v1.routers.teacher_compare import router as compare_teacher_router
-from edutracker.api.v1.routers.peak_load_teacher_router import router as peak_load_teacher_router
-from edutracker.api.v1.routers.average_lessons_router import router as average_lessons_router
+from edutracker.api.v1.routers.teachers.top_teachers import router as teacher_top_router
+from edutracker.api.v1.routers.teachers.teachers_stats import router as teacher_stats_router
+from edutracker.api.v1.routers.teachers.teacher_compare import router as compare_teacher_router
+from edutracker.api.v1.routers.teachers.peak_load_teacher_router import router as peak_load_teacher_router
+from edutracker.api.v1.routers.teachers.average_lessons_router import router as average_lessons_router
 
 router = APIRouter()
 

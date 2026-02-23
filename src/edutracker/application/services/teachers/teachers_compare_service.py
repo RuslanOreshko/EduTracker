@@ -1,7 +1,7 @@
 from collections import Counter
 from datetime import date
 
-from edutracker.application.services.teacher_stats_service import TeacherStatsService
+from edutracker.application.services.teachers.teacher_stats_service import TeacherStatsService
 
 
 class TeacherCompareService:
