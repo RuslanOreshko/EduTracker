@@ -1,20 +1,24 @@
 from datetime import date
 from collections import Counter
+import logging
 
 from edutracker.application.interfaces.schedule_repository import IScheduleRepository
 from edutracker.application.dto.teacher_stats_result import TeacherStatsResult
 from edutracker.application.interfaces.LessonFilters import ILessonFilter
 
-from edutracker.application.services.stats.teacher_matcher import TeacherMatcher
-from edutracker.application.services.stats.stats_aggregator import StatsAggregator
-from edutracker.application.services.stats.lesson_extractor import LessonExtractor
-from edutracker.application.services.stats.teacher_share_calculator import TeacherShareCalculator
+from edutracker.application.services.stats import (
+    TeacherShareCalculator,
+    TeacherMatcher,
+    StatsAggregator,
+    LessonExtractor,
+)
 
 from edutracker.application.services.stats.schedule_days_provider import ScheduleDayProvider
 from edutracker.infrastructure.parsers.schedule_json_parser import ScheduleJsonParser
 
 from edutracker.application.common.cleaner import ValueCleaner
 
+logger = logging.getLogger(__name__)
 
 class TeacherStatsService:
     def __init__(self, schedule_repo: IScheduleRepository):
@@ -22,7 +26,6 @@ class TeacherStatsService:
         self._parser = ScheduleJsonParser()
         self._days = ScheduleDayProvider(self._repo, self._parser)
 
-        self._schedule_repo = schedule_repo
         self._matcher = TeacherMatcher()
         self._share_calc = TeacherShareCalculator(self._matcher)
         self._extractor = LessonExtractor()
@@ -34,15 +37,33 @@ class TeacherStatsService:
         date_to: date,
         split_teachers_by_slash: bool = True,
         filters: list[ILessonFilter] | None = None 
-    ) -> TeacherStatsResult:
+    ) -> TeacherStatsResult:   
+        
+        filters = filters or []
+
+        logger.info(
+            "Teacher stats requested",
+            extra={
+                "teacher": teacher,
+                "date_from": date_from,
+                "date_to": date_to,
+                "split_by_slash": split_teachers_by_slash,
+                "filters": len(filters)
+            }
+        )
+
         days = self._days.get_days(date_from, date_to)
 
         schedule_type_breakdown = Counter()
         agg = StatsAggregator(by_date=Counter(), by_group=Counter(), by_subject=Counter())
         teacher_norm = self._matcher.norm(teacher)
-        filters = filters or []
 
         seen: set[tuple] = set()
+
+        lessons_scanned = 0
+        lessons_after_dedup = 0
+        lessons_matched_teacher = 0
+        lessons_after_filters = 0
 
         for day in days:
             if day.schedule_type:
@@ -51,6 +72,8 @@ class TeacherStatsService:
             weekday = day.schedule_date.strftime("%A")
 
             for lesson in self._extractor.extract(day, weekday=weekday):
+                lessons_scanned += 1
+
                 teacher_field = (lesson or{}).get("teacher_name") or ""
 
                 lesson_id = (
@@ -64,6 +87,7 @@ class TeacherStatsService:
                 if lesson_id in seen:
                     continue
                 seen.add(lesson_id)
+                lessons_after_dedup += 1
 
                 share = self._share_calc.calc(
                     teacher_field=teacher_field,
@@ -72,6 +96,7 @@ class TeacherStatsService:
                 )
                 if share <= 0:
                     continue
+                lessons_matched_teacher += 1
 
                 if not all(
                     f.match(
@@ -83,8 +108,23 @@ class TeacherStatsService:
                     for f in filters
                 ):
                     continue
+                lessons_after_filters += 1
 
                 agg.add(day.schedule_date, lesson, share)
+
+        logger.info(
+            "Teacher stats computed",
+            extra={
+                "teacher": teacher,
+                "days_total": len(days),
+                "lessons_scanned": lessons_scanned,
+                "lessons_after_dedup": lessons_after_dedup,
+                "lessons_matched_teacher": lessons_matched_teacher,
+                "lessons_after_filters": lessons_after_filters,
+                "total_lessons": round(agg.total, 2),
+                "unique_lessons": len(seen),
+            }
+        )
 
         return TeacherStatsResult(
             teacher=teacher,

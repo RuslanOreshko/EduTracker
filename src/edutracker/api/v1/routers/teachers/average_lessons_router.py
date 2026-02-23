@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from datetime import date
 
-from edutracker.infrastructure.repositories.schedule_repository import ScheduleRepository
+from edutracker.infrastructure.repositories import ScheduleRepository
 
 from edutracker.api.deps.get_database import get_db
-from edutracker.application.services.stats.date_default import academic_year_start
-from edutracker.api.v1.schemas.avg_lessons_out import AvgLessonsOut
+from edutracker.application.services.stats import academic_year_start
+from edutracker.api.v1.schemas import AvgLessonsOut
 
-from edutracker.application.services.teachers.average_lessons_service import AverageLessonsService
+from edutracker.application.services.teachers import AverageLessonsService
 
 
 router = APIRouter(prefix="/teachers", tags=["Teachers"])

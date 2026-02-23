@@ -4,7 +4,7 @@ from typing import Dict, Optional
 import json
 
 
-class ScheduleRecordOut(BaseModel):
+class TeacherStatsOut(BaseModel):
     teacher: str 
     date_from: date
     date_to: date

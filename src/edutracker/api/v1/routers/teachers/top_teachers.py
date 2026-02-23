@@ -2,11 +2,12 @@ from datetime import date
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from edutracker.api.v1.schemas.top_teachers import TopTacherItem, TopTeachersOut
-from edutracker.application.services.stats.date_default import academic_year_start
-from edutracker.application.services.teachers.top_teachers_service import TopTeachersService
-from edutracker.infrastructure.repositories.schedule_repository import ScheduleRepository
+from edutracker.api.v1.schemas import TopTacherItem, TopTeachersOut
+from edutracker.application.services.stats import academic_year_start
 from edutracker.api.deps.get_database import get_db
+
+from edutracker.application.services.teachers import TopTeachersService
+from edutracker.infrastructure.repositories import ScheduleRepository
 
 
 router = APIRouter(prefix="/teachers", tags=["Teachers"])
