@@ -2,12 +2,14 @@ from datetime import date
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from edutracker.infrastructure.repositories import ScheduleRepository
+from edutracker.application.services.teachers import TopTeachersService
 from edutracker.api.v1.schemas import TopTacherItem, TopTeachersOut
+from edutracker.api.v1.mappers.top_teacher_mapper import to_schame
+
 from edutracker.application.services.stats import academic_year_start
 from edutracker.api.deps.get_database import get_db
 
-from edutracker.application.services.teachers import TopTeachersService
-from edutracker.infrastructure.repositories import ScheduleRepository
 
 
 router = APIRouter(prefix="/teachers", tags=["Teachers"])
@@ -26,13 +28,9 @@ def top_teachers(
     repo = ScheduleRepository(db)
     service = TopTeachersService(repo)
 
-    top = service.top_teacher(date_from=date_from, date_to=date_to, limit=limit)
+    result_dto = service.top_teacher(date_from=date_from, date_to=date_to, limit=limit)
 
-    return TopTeachersOut(
-        date_from=date_from,
-        date_to=date_to,
-        top=[TopTacherItem(teacher=name, total_lessons=total) for name, total in top]
-    )
+    return to_schame(result_dto)
     
     
 

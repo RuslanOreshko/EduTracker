@@ -1,14 +1,16 @@
 from datetime import date
 from fastapi import APIRouter, Depends, Query
 
+from edutracker.application.services.teachers import TeacherStatsService
+from edutracker.api.v1.schemas import TeacherStatsOut
+from edutracker.api.v1.mappers.stats_teachers_mapper import to_schema
+
 from edutracker.api.deps.stats import get_stats_servise
 from edutracker.application.services.stats import academic_year_start
 
 from edutracker.application.filters.subject import SubjectFilter
 from edutracker.application.filters.group import GroupFilter
 
-from edutracker.application.services.teachers import TeacherStatsService
-from edutracker.api.v1.schemas import TeacherStatsOut
 
 
 router = APIRouter(prefix="/teachers",tags=["Teachers"])
@@ -46,13 +48,4 @@ def teacher_stats(
         filters=filters,
     )
 
-    return TeacherStatsOut(
-        teacher=result.teacher,
-        date_from=result.date_from,
-        date_to=result.date_to,
-        total_lessons=result.total_lessons,
-        by_date=result.by_date,
-        by_group=result.by_group,
-        by_subject=result.by_subject,
-        schedule_type_breakdown=result.schedule_type_breakdown,
-    )   
+    return to_schema(result)  

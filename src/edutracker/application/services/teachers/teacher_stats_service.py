@@ -16,6 +16,8 @@ from edutracker.application.services.stats import (
 from edutracker.application.services.stats.schedule_days_provider import ScheduleDayProvider
 from edutracker.infrastructure.parsers.schedule_json_parser import ScheduleJsonParser
 
+from edutracker.application.common.logging_utils import log_requested, log_computed
+
 from edutracker.application.common.cleaner import ValueCleaner
 
 logger = logging.getLogger(__name__)
@@ -41,16 +43,15 @@ class TeacherStatsService:
         
         filters = filters or []
 
-        logger.info(
-            "Teacher stats requested",
-            extra={
-                "teacher": teacher,
-                "date_from": date_from,
-                "date_to": date_to,
-                "split_by_slash": split_teachers_by_slash,
-                "filters": len(filters)
-            }
+        log_requested(logger, 
+                "Stats teacher", 
+                date_from=str(date_from), 
+                teacher=teacher,
+                date_to=str(date_to),
+                split_by_slash=split_teachers_by_slash,
+                filters=len(filters)
         )
+
 
         days = self._days.get_days(date_from, date_to)
 
@@ -112,18 +113,16 @@ class TeacherStatsService:
 
                 agg.add(day.schedule_date, lesson, share)
 
-        logger.info(
-            "Teacher stats computed",
-            extra={
-                "teacher": teacher,
-                "days_total": len(days),
-                "lessons_scanned": lessons_scanned,
-                "lessons_after_dedup": lessons_after_dedup,
-                "lessons_matched_teacher": lessons_matched_teacher,
-                "lessons_after_filters": lessons_after_filters,
-                "total_lessons": round(agg.total, 2),
-                "unique_lessons": len(seen),
-            }
+        log_computed(logger, 
+                "Stats teacher", 
+                date_from=str(date_from), 
+                teacher=teacher,
+                days_total=len(days),
+                lessons_scanned=lessons_scanned,
+                lessons_after_dedup=lessons_after_dedup,
+                lessons_matched_teacher=lessons_matched_teacher,
+                lessons_after_filters=lessons_after_filters,
+                total_lessons=round(agg.total, 2),
         )
 
         return TeacherStatsResult(

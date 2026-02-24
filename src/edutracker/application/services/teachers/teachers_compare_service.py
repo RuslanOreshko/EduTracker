@@ -3,6 +3,9 @@ from datetime import date
 import logging
 
 from edutracker.application.services.teachers.teacher_stats_service import TeacherStatsService
+from edutracker.application.dto.compare_teacher_result import TeacherCompareResult, TeacherCompareSideResult, ComparisonBlockResult, NameCountResult
+
+from edutracker.application.common.logging_utils import log_requested, log_computed
 
 logger = logging.getLogger(__name__)
 
@@ -20,15 +23,7 @@ class TeacherCompareService:
         top_n: int = 5,
     ):
         # Логування про початок роботи сервісу
-        logger.info(
-            "Compare teachers requested",
-            extra={
-                "teacher_1": teacher_a,
-                "teacher_2": teacher_b,
-                "date_from": str(date_from),
-                "date_to": str(date_to),
-            },
-        )
+        log_requested(logger, "Compare teacher", date_from=str(date_from), teacher_a=teacher_a, teacher_b=teacher_b)
 
         # Статистики викладачів повернуто від класу TeacherStatsService
         # Викладач а
@@ -62,45 +57,39 @@ class TeacherCompareService:
         base = max(a_total, b_total, 1e-9)
         diff_percent = round((diff / base) * 100, 2)
 
-        def top_items(counter_dict: dict, n: int):
+        def top_items(counter_dict: dict, n: int) -> list[NameCountResult]:
             c = Counter(counter_dict)
-            return [{"name": k, "count": round(float(v), 2)} for k, v in c.most_common(n)]
+            return [NameCountResult(name=k, count=round(float(v), 2)) for k, v in c.most_common(n)]
         
         summary = self._build_summary(teacher_a, teacher_b, winner, diff, diff_percent)
 
         # Лог про закінчення роботи
-        logger.info(
-            "Compare teachers computed",
-            extra={
-                "teacher_1": teacher_a,
-                "teacher_2": teacher_b,
-                "total_1": a_total,
-                "total_2": b_total,
-            },
+        result = TeacherCompareResult(
+            date_from=date_from,
+            date_to=date_to,
+            teacher_a=TeacherCompareSideResult(
+                name=teacher_a,
+                total_lessons=round(a_total, 2),
+                by_subject_top=top_items(a.by_subject, top_n),
+                by_group_top=top_items(a.by_group, top_n),
+            ),
+            teacher_b=TeacherCompareSideResult(
+                name=teacher_b,
+                total_lessons=round(b_total, 2),
+                by_subject_top=top_items(b.by_subject, top_n),
+                by_group_top=top_items(b.by_group, top_n),
+            ),
+            comparison=ComparisonBlockResult(
+                winner=winner,
+                difference_lessons=diff,
+                difference_percent=diff_percent,
+            ),
+            summary=summary,
         )
 
-        return {
-            "date_from": date_from,
-            "date_to": date_to,
-            "teacher_a": {
-                "name": teacher_a,
-                "total_lessons": round(a_total, 2),
-                "by_subject_top": top_items(a.by_subject, top_n),
-                "by_group_top": top_items(a.by_group, top_n)
-            },
-            "teacher_b": {
-                "name": teacher_b,
-                "total_lessons": round(b_total, 2),
-                "by_subject_top": top_items(b.by_subject, top_n),
-                "by_group_top": top_items(b.by_group, top_n)
-            },
-            "comparison": {
-                "winner": winner,
-                "difference_lesson": diff,
-                "defference_percent": diff_percent,
-            },
-            "summary": summary,
-        }
+        log_computed(logger, "Compare teacher", date_from=str(date_from), teacher_a=teacher_a, teacher_b=teacher_b)
+
+        return result
 
     
     # Висновок
@@ -110,4 +99,5 @@ class TeacherCompareService:
         if winner == "teacher_a":
             return f"{ta} провів(ла) на {diff} зайнять більше (+{diff_percent}%) за вибраний період"
         return f"{tb} провів(ла) на {diff} зайнять більше (+{diff_percent}%) за вибраний період"
+    
 

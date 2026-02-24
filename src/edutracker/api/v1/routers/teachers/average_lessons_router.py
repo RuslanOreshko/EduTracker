@@ -3,17 +3,18 @@ from sqlalchemy.orm import Session
 from datetime import date
 
 from edutracker.infrastructure.repositories import ScheduleRepository
+from edutracker.application.services.teachers import AverageLessonsService
+from edutracker.api.v1.schemas import AvgLessonsOut
 
 from edutracker.api.deps.get_database import get_db
 from edutracker.application.services.stats import academic_year_start
-from edutracker.api.v1.schemas import AvgLessonsOut
-
-from edutracker.application.services.teachers import AverageLessonsService
+from edutracker.api.v1.mappers.average_lessons_mapper import to_schema
 
 
 router = APIRouter(prefix="/teachers", tags=["Teachers"])
 
-@router.get("/teacher/avg-per-workday")
+
+@router.get("/teacher/avg-per-workday", response_model=AvgLessonsOut)
 def avg_per_workday(
     teacher: str | None = Query(default=None),
     date_from: date | None = Query(default=None),
@@ -26,13 +27,6 @@ def avg_per_workday(
     repo = ScheduleRepository(db)
     service = AverageLessonsService(repo)
 
-    data = service.average_per_workday(date_from=date_from, date_to=date_to, teacher=teacher)
+    result = service.average_per_workday(date_from=date_from, date_to=date_to, teacher=teacher)
 
-    return AvgLessonsOut(
-        date_from=data["date_from"],
-        date_to=data["date_to"],
-        teacher=data["teacher"],
-        awg_lessons_per_workday=data["awg_lessons_per_workday"],
-        workdays_count=data["workdays_count"],
-        total_lessons=data["total"],
-    )
+    return to_schema(result)

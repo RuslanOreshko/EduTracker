@@ -2,14 +2,14 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from datetime import date
 
-from edutracker.application.services.stats import academic_year_start
-
-from edutracker.api.deps.get_database import get_db
-
-from edutracker.api.v1.schemas import TeacherCompareOut
 from edutracker.infrastructure.repositories import ScheduleRepository
 from edutracker.application.services.teachers import TeacherStatsService
 from edutracker.application.services.teachers import TeacherCompareService
+from edutracker.api.v1.schemas import TeacherCompareOut
+from edutracker.api.deps.get_database import get_db
+from edutracker.api.v1.mappers.compare_teachers import to_schema
+
+from edutracker.application.services.stats import academic_year_start
 
 
 router = APIRouter(prefix="/teachers", tags=["Teachers"])
@@ -30,7 +30,7 @@ def compare_teachers(
     stats = TeacherStatsService(repo)
     cmp_service = TeacherCompareService(stats)
 
-    data =  cmp_service.compare(
+    result =  cmp_service.compare(
         teacher_a=teacher_a,
         teacher_b=teacher_b,
         date_from=date_from,
@@ -38,4 +38,4 @@ def compare_teachers(
         top_n=top_n,
     )
 
-    return data
+    return to_schema(result)

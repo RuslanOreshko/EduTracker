@@ -4,9 +4,11 @@ from collections import Counter
 import logging
 
 from edutracker.application.services.teachers.teacher_stats_service import TeacherStatsService
-from edutracker.api.v1.schemas.peak_load import (
-    TeacherPeakLoadOut, PeakDayOut, PeakWeekOut, PeakMonthOut
+from edutracker.application.dto.peak_day_result import (
+    TeacherPeakLoadResult, PeakDayOut, PeakWeekOut, PeakMonthOut
 )
+
+from edutracker.application.common.logging_utils import log_requested, log_computed
 
 logger = logging.getLogger(__name__)
 
@@ -21,15 +23,13 @@ class TeacherPeakLoadService:
         date_from: date,
         date_to: date,
         split_teacher_by_slash: bool = True,
-    ) ->    TeacherPeakLoadOut:
+    ) -> TeacherPeakLoadResult:
         # Лог про початок роботи сервісу
-        logger.info(
-            "Peak load requested",
-            extra={
-                "teacher": teacher,
-                "date_from": str(date_from),
-                "date_to": str(date_to),
-            },
+        log_requested(logger, 
+                "Peak load", 
+                date_from=str(date_from), 
+                teacher=teacher,
+                date_to=str(date_to),
         )
 
         # Повертаємо статистику викладача
@@ -42,7 +42,7 @@ class TeacherPeakLoadService:
 
         by_date = stats.by_date
         if not by_date:
-            return TeacherPeakLoadOut(
+            return TeacherPeakLoadResult(
                 teacher=teacher,
                 date_from=date_from,
                 date_to=date_to,
@@ -77,25 +77,25 @@ class TeacherPeakLoadService:
         peak_month_val = float(month_totals[peak_month_key])
         peak_month_year, peak_month_num = peak_month_key
 
-        logger.info(
-            "Peak load computed",
-            extra={
-                "teacher": teacher,
-                "peak_day": peak_day_date,
-                "peak_week": {
+        log_computed(logger, 
+                "Peak load", 
+                date_from=str(date_from), 
+                teacher=teacher,
+                date_to=str(date_to),
+                peak_day=peak_day_date,
+                peak_week={
                     peak_week_year,
                     peak_week_num,
                     week_start,
                     week_end,
                 },
-                "peak_moth": {
+                peak_moth={
                     peak_month_year,
                     peak_month_num,
                 },
-            },
         )
 
-        return TeacherPeakLoadOut(
+        return TeacherPeakLoadResult(
             teacher=teacher,
             date_from=date_from,
             date_to=date_to,

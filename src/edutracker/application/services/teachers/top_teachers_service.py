@@ -4,13 +4,16 @@ import logging
 
 from edutracker.application.interfaces.schedule_repository import IScheduleRepository
 
-from edutracker.application.services.stats import LessonExtractor
-from edutracker.application.services.stats import TeacherMatcher
+from edutracker.application.services.stats import LessonExtractor, TeacherMatcher
 from edutracker.application.common.cleaner import ValueCleaner
 from edutracker.application.common.split_teacher import SplitTeacher
 
 from edutracker.application.services.stats import ScheduleDayProvider
 from edutracker.infrastructure.parsers.schedule_json_parser import ScheduleJsonParser
+
+from edutracker.application.dto.top_teachers_result import TopTeachersResult, TopTacherItem
+
+from edutracker.application.common.logging_utils import log_requested, log_computed
 
 logger = logging.getLogger(__name__)
 
@@ -32,14 +35,7 @@ class TopTeachersService:
         limit: int = 5,
     ) -> list[tuple[str, float]]:
         # Лог про початок роботи сервісу
-        logger.info(
-            "Top teacher request",
-            extra={
-                "date_from": str(date_from),
-                "date_to": str(date_to),
-                "limit": limit,
-            }
-        )
+        log_requested(logger, "Top teacher", date_from=str(date_from), limit=limit)
 
         days = self._days.get_days(date_from, date_to)
 
@@ -72,17 +68,18 @@ class TopTeachersService:
 
         top = totals.most_common(limit)
 
-        logger.info(
-            "Top teachers computed",
-            extra={
-                "date_from": str(date_from),
-                "date_to": str(date_to),
-                "days_total": len(days),
-                "teachers_count": len(top),
-                "limit": limit,
-            },
+        # Лог про закінчення роботи сервісу
+        log_computed(logger, "Top teacher", date_from=str(date_from), limit=limit)
+
+        result = TopTeachersResult(
+            date_from=date_from,
+            date_to=date_to,
+            top=[
+                TopTacherItem(teacher=name, total_lessons=round(float(val), 2))
+                for name, val in top
+            ],
         )
 
-        return [(name, round(val, 2)) for name, val in top]
+        return result
 
     
