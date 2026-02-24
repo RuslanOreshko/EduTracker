@@ -1,11 +1,14 @@
 from datetime import date, timedelta
 from collections import Counter
-from typing import Optional
+
+import logging
 
 from edutracker.application.services.teachers.teacher_stats_service import TeacherStatsService
 from edutracker.api.v1.schemas.peak_load import (
     TeacherPeakLoadOut, PeakDayOut, PeakWeekOut, PeakMonthOut
 )
+
+logger = logging.getLogger(__name__)
 
 
 class TeacherPeakLoadService:
@@ -19,6 +22,16 @@ class TeacherPeakLoadService:
         date_to: date,
         split_teacher_by_slash: bool = True,
     ) ->    TeacherPeakLoadOut:
+        # Лог про початок роботи сервісу
+        logger.info(
+            "Peak load requested",
+            extra={
+                "teacher": teacher,
+                "date_from": str(date_from),
+                "date_to": str(date_to),
+            },
+        )
+
         # Повертаємо статистику викладача
         stats = self._stats.teacher_stats(
             teacher=teacher,
@@ -63,6 +76,24 @@ class TeacherPeakLoadService:
         peak_month_key = max(month_totals, key=lambda m: month_totals[m])
         peak_month_val = float(month_totals[peak_month_key])
         peak_month_year, peak_month_num = peak_month_key
+
+        logger.info(
+            "Peak load computed",
+            extra={
+                "teacher": teacher,
+                "peak_day": peak_day_date,
+                "peak_week": {
+                    peak_week_year,
+                    peak_week_num,
+                    week_start,
+                    week_end,
+                },
+                "peak_moth": {
+                    peak_month_year,
+                    peak_month_num,
+                },
+            },
+        )
 
         return TeacherPeakLoadOut(
             teacher=teacher,

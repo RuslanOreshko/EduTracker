@@ -1,7 +1,10 @@
 from collections import Counter
 from datetime import date
+import logging
 
 from edutracker.application.services.teachers.teacher_stats_service import TeacherStatsService
+
+logger = logging.getLogger(__name__)
 
 
 class TeacherCompareService:
@@ -16,6 +19,17 @@ class TeacherCompareService:
         date_to: date,
         top_n: int = 5,
     ):
+        # Логування про початок роботи сервісу
+        logger.info(
+            "Compare teachers requested",
+            extra={
+                "teacher_1": teacher_a,
+                "teacher_2": teacher_b,
+                "date_from": str(date_from),
+                "date_to": str(date_to),
+            },
+        )
+
         # Статистики викладачів повернуто від класу TeacherStatsService
         # Викладач а
         a = self._stats.teacher_stats(
@@ -53,6 +67,17 @@ class TeacherCompareService:
             return [{"name": k, "count": round(float(v), 2)} for k, v in c.most_common(n)]
         
         summary = self._build_summary(teacher_a, teacher_b, winner, diff, diff_percent)
+
+        # Лог про закінчення роботи
+        logger.info(
+            "Compare teachers computed",
+            extra={
+                "teacher_1": teacher_a,
+                "teacher_2": teacher_b,
+                "total_1": a_total,
+                "total_2": b_total,
+            },
+        )
 
         return {
             "date_from": date_from,

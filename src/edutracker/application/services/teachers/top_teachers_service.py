@@ -1,16 +1,18 @@
 from datetime import date
 from collections import Counter
+import logging
 
 from edutracker.application.interfaces.schedule_repository import IScheduleRepository
 
-from edutracker.application.services.stats.lesson_extractor import LessonExtractor
-from edutracker.application.services.stats.teacher_matcher import TeacherMatcher
+from edutracker.application.services.stats import LessonExtractor
+from edutracker.application.services.stats import TeacherMatcher
 from edutracker.application.common.cleaner import ValueCleaner
 from edutracker.application.common.split_teacher import SplitTeacher
 
-from edutracker.application.services.stats.schedule_days_provider import ScheduleDayProvider
+from edutracker.application.services.stats import ScheduleDayProvider
 from edutracker.infrastructure.parsers.schedule_json_parser import ScheduleJsonParser
 
+logger = logging.getLogger(__name__)
 
 
 class TopTeachersService:
@@ -29,6 +31,16 @@ class TopTeachersService:
         date_to: date,
         limit: int = 5,
     ) -> list[tuple[str, float]]:
+        # Лог про початок роботи сервісу
+        logger.info(
+            "Top teacher request",
+            extra={
+                "date_from": str(date_from),
+                "date_to": str(date_to),
+                "limit": limit,
+            }
+        )
+
         days = self._days.get_days(date_from, date_to)
 
         totals: Counter[str] = Counter()
@@ -57,7 +69,20 @@ class TopTeachersService:
                 for teacher_norm, share in self._split_teacher.split_teacher(teacher_field):
                     totals[teacher_norm] += share
 
+
         top = totals.most_common(limit)
+
+        logger.info(
+            "Top teachers computed",
+            extra={
+                "date_from": str(date_from),
+                "date_to": str(date_to),
+                "days_total": len(days),
+                "teachers_count": len(top),
+                "limit": limit,
+            },
+        )
+
         return [(name, round(val, 2)) for name, val in top]
 
     
