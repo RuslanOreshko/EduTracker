@@ -4,6 +4,8 @@ from edutracker.core.config import settings
 from edutracker.infrastructure.db.schedule_teachers.base import Base
 from edutracker.infrastructure.db.schedule_teachers.database import build_engine
 
+import edutracker.infrastructure.db.schedule_teachers.models  
+
 def main() -> None:
     db_path = Path(settings.DB_PATH).resolve()
     db_path.parent.mkdir(parents=True, exist_ok=True)
