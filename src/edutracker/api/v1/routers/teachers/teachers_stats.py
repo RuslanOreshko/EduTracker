@@ -5,7 +5,7 @@ from edutracker.application.services.teachers import TeacherStatsService
 from edutracker.api.v1.schemas import TeacherStatsOut
 from edutracker.api.v1.mappers.stats_teachers_mapper import to_schema
 
-from edutracker.api.deps.stats import get_stats_servise
+from edutracker.api.deps.get_stats import get_stats_servise
 from edutracker.application.services.stats import academic_year_start
 
 from edutracker.application.filters.subject import SubjectFilter
