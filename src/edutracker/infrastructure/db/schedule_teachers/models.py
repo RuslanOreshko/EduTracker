@@ -4,7 +4,7 @@ from datetime import date, datetime
 from sqlalchemy import DateTime, Integer, String, Date, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from edutracker.infrastructure.db.base import Base
+from edutracker.infrastructure.db.schedule_teachers.base import Base
 
 
 

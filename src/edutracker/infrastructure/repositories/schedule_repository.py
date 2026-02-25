@@ -7,7 +7,7 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from edutracker.infrastructure.db.models import ScheduleRecord
+from edutracker.infrastructure.db.schedule_teachers.models import ScheduleRecord
 from edutracker.application.interfaces.schedule_repository import IScheduleRepository, ScheduleDayRawRow
 
 

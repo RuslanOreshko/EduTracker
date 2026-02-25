@@ -1,10 +1,8 @@
 from pathlib import Path
 
 from edutracker.core.config import settings
-from edutracker.infrastructure.db.base import Base
-from edutracker.infrastructure.db.database import build_engine
-
-import edutracker.infrastructure.db.models  
+from edutracker.infrastructure.db.schedule_teachers.base import Base
+from edutracker.infrastructure.db.schedule_teachers.database import build_engine
 
 def main() -> None:
     db_path = Path(settings.DB_PATH).resolve()

@@ -1,7 +1,7 @@
 from collections.abc import Generator
 from sqlalchemy.orm import Session
 
-from edutracker.infrastructure.db.database import create_session_local
+from edutracker.infrastructure.db.schedule_teachers.database import create_session_local
 
 
 SessionLocal = create_session_local(readonly=True)
