@@ -6,6 +6,7 @@ from edutracker.api.v1.schemas import TeacherStatsOut
 from edutracker.api.v1.mappers.stats_teachers_mapper import to_schema
 
 from edutracker.api.deps.get_stats import get_stats_servise
+from edutracker.api.deps.permissions import required_roles
 from edutracker.application.services.stats import academic_year_start
 
 from edutracker.application.filters.subject import SubjectFilter
@@ -13,7 +14,7 @@ from edutracker.application.filters.group import GroupFilter
 
 
 
-router = APIRouter(prefix="/teachers",tags=["Teachers"])
+router = APIRouter(prefix="/teachers",tags=["Teachers"], dependencies=[Depends(required_roles("teacher", "admin"))])
 
 @router.get("/teacher", response_model=TeacherStatsOut)
 def teacher_stats(

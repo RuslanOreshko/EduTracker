@@ -3,6 +3,7 @@ from edutracker.api.v1.routers.health import router as health_router
 from edutracker.api.v1.routers.root import router as root_router
 from edutracker.api.v1.routers.debug import router as debug_router
 from edutracker.api.v1.routers.auth.auth_router import router as auth_router
+from edutracker.api.v1.routers.auth.auth_my import router as auth_my
 
 from edutracker.api.v1.routers.teachers import (
     compare_router,
@@ -14,6 +15,8 @@ from edutracker.api.v1.routers.teachers import (
 
 
 router = APIRouter()
+
+router.include_router(auth_my)
 
 router.include_router(auth_router)
 

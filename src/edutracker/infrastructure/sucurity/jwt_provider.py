@@ -13,7 +13,7 @@ class JwtProvider:
             "email": email,
             "role": role,
             "iat": int(now.timestamp()),
-            "exp": int(now.timestamp()),
+            "exp": int((now + timedelta(minutes=15)).timestamp()),
         }
 
         return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALG)

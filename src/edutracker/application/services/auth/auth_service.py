@@ -10,6 +10,11 @@ from edutracker.application.common.tokens import new_refresh_token, hash_token
 from edutracker.application.dto.auth_token_dto import AuthTokensResult
 from edutracker.core.config import settings
 
+from edutracker.application.common.exceptions import (
+    InactiveUserError,
+    InvalidRefreshTokenError,
+    CorporateEmailRequiredError,
+)
 
 
 class AuthService:
@@ -24,12 +29,18 @@ class AuthService:
     def login_with_google_id_token(self, *, id_token: str) -> AuthTokensResult:
         ident = self._google.verify(id_token)
 
+        allowed_domain = settings.AUTH_ALLOWED_DOMAIM.lower().strip()
+        email_domain = ident.email.split("@")[-1].lower().strip()
+
+        if email_domain != allowed_domain:
+            raise CorporateEmailRequiredError("Not a corporate account")
+
         user = self._users.get_by_google_sub(ident.sub)
         if not user:
             user = self._users.create_user(email=ident.email, google_sub=ident.sub, role="teacher")
 
         if not user.is_active:
-            raise PermissionError("User is inactive")
+            raise InactiveUserError("User is inactive")
         
         access = self._jwt.create_access_token(user_id=user.id, email=user.email, role=user.role)
 
@@ -48,12 +59,12 @@ class AuthService:
         rt = self._refresh.get_valid(token_hash=token_hash, now=now)
 
         if not rt:
-            raise PermissionError("Invalid refresh token")
+            raise InvalidRefreshTokenError("Invalid refresh token")
         
         user = rt.user
         
         if not user.is_active:
-            raise PermissionError("User is inactive")
+            raise InactiveUserError("User is inactive")
         
         return self._jwt.create_access_token(user_id=user.id, email=user.email, role=user.role)
     

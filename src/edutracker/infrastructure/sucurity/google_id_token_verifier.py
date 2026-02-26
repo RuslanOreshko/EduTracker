@@ -6,9 +6,11 @@ from dataclasses import dataclass
 from typing import Any
 
 import jwt
-from jwt import PyJWKClient
+from jwt import PyJWKClient, ExpiredSignatureError, InvalidTokenError
 
 from edutracker.core.config import settings
+
+from edutracker.application.common.exceptions import InvalidGoogleTokenError
 
 logger = logging.getLogger(__name__)
 
@@ -31,20 +33,27 @@ class GoogleIdTokenVerifier:
         self._jwk_client = PyJWKClient(GOOGLE_JWKS_URL)
 
     def verify(self, id_token: str) -> GoogleIdentity:
-        signing_key = self._jwk_client.get_signing_key_from_jwt(id_token).key
+        try:
+            signing_key = self._jwk_client.get_signing_key_from_jwt(id_token).key
 
-        claims: dict[str, Any] = jwt.decode(
-            id_token,
-            signing_key,
-            algorithms=["RS256"],
-            options={"require": ["exp", "iat", "sub"]},
-            audience=self._client_id,  # твій GOOGLE_CLIENT_ID
-            issuer=GOOGLE_ISSUERS,
-        )
+            claims: dict[str, Any] = jwt.decode(
+                id_token,
+                signing_key,
+                algorithms=["RS256"],
+                options={"require": ["exp", "iat", "sub"]},
+                audience=self._client_id,  # твій GOOGLE_CLIENT_ID
+                issuer=GOOGLE_ISSUERS,
+            )
 
-        iss = claims.get("iss")
-        if iss not in GOOGLE_ISSUERS:
-            raise ValueError("Invalid issuer")
+
+        except ExpiredSignatureError as e:
+                raise InvalidGoogleTokenError("Google token expired") from e
+
+        except InvalidTokenError as e:
+            raise InvalidGoogleTokenError("Invalid Google token") from e
+
+        except Exception as e:
+            raise InvalidGoogleTokenError("Google token verification failed") from e
         
         email = str(claims.get("email") or "").lower()
         email_verified = bool(claims.get("email_verified", False))
@@ -52,14 +61,11 @@ class GoogleIdTokenVerifier:
         hd = claims.get("hd")
 
         if not sub or not email:
-            raise ValueError("Missing required claims")
+            raise InvalidGoogleTokenError("Missing required claims")
         
         if not email_verified:
-            raise ValueError("Email is not verified")
+            raise InvalidGoogleTokenError("Email is not verified")
         
-        allowed = settings.AUTH_ALLOWED_DOMAIM.lower()
-        if not email.endswith("@" + allowed):
-            raise ValueError("Not a corporate account")
         
         return GoogleIdentity(
             sub=sub,

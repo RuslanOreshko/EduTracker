@@ -6,7 +6,7 @@ from edutracker.core.config import settings
 
 engine = create_engine(
     f"sqlite:///{settings.AUTH_DB_PATH}",
-    connect_args={"check_same_thread": False},
+    connect_args={"check_same_thread": False, "timeout": 30.},
     future=True,
 )
 

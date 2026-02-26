@@ -9,10 +9,11 @@ from edutracker.api.v1.mappers.top_teacher_mapper import to_schame
 
 from edutracker.application.services.stats import academic_year_start
 from edutracker.api.deps.get_database import get_db
+from edutracker.api.deps.permissions import required_roles
 
 
 
-router = APIRouter(prefix="/teachers", tags=["Teachers"])
+router = APIRouter(prefix="/teachers", tags=["Teachers"], dependencies=[Depends(required_roles("teacher", "admin"))])
 
 
 @router.get("/teacher/top", response_model=TopTeachersOut)
