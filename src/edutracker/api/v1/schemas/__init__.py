@@ -4,7 +4,6 @@ from .teacher_compare import TeacherCompareOut
 from .peak_load import TeacherPeakLoadOut
 from .avg_lessons_out import AvgLessonsOut
 
-
 __all__ = [
     "TeacherStatsOut",
     "TopTeachersOut",

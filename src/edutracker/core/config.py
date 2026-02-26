@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from pathlib import Path
+import os
 
 # 3 для підключення тестової бд із завантажень
 # 1 для продакш бд яка використовується
@@ -20,6 +21,8 @@ class Settings(BaseSettings):
     # секретний ключ із токеном
     JWT_SECRET: str = Field(..., validation_alias="JWT_SECRET")
     JWT_ALG: str = Field("HS256", validation_alias="JWT_ALG")
+
+    GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID")
 
     model_config = SettingsConfigDict(
         env_file= BASE_DIR / ".env",
