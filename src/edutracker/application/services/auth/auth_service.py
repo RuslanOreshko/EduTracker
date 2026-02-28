@@ -1,13 +1,14 @@
 from datetime import datetime, timedelta, timezone
-
+from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
 from edutracker.infrastructure.repositories.auth_user_repository import AuthUserRepository
 from edutracker.infrastructure.repositories.refresh_token_repository import RefreshTokenRepository
 from edutracker.infrastructure.sucurity.google_id_token_verifier import GoogleIdTokenVerifier
 from edutracker.infrastructure.sucurity.jwt_provider import JwtProvider
-from edutracker.application.common.tokens import new_refresh_token, hash_token
 from edutracker.application.dto.auth_token_dto import AuthTokensResult
+from edutracker.infrastructure.db.Auth.auth_model import RefreshToken
+from edutracker.application.common.tokens import new_refresh_token, hash_token
 from edutracker.core.config import settings
 
 from edutracker.application.common.exceptions import (
@@ -72,4 +73,16 @@ class AuthService:
         now = datetime.now(timezone.utc)
         token_hash = hash_token(refresh_token)
         self._refresh.revoke(token_hash=token_hash, now=now)
+
+    # Видалення неактивних токенів
+    def cleanup_refresh_token(self):
+        now = datetime.utcnow()
+
+        deleted = self._db.query(RefreshToken).filter(
+            (RefreshToken.revoked_at.isnot(None)) |
+            (RefreshToken.expires_at < now)
+        ).delete(synchronize_session=False)
+
+        self._db.commit()    
+        return deleted
 

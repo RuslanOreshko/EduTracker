@@ -30,7 +30,7 @@ async function logout() {
 
 <style scoped>
 .app {
-  min-height: 100hv;
+  min-height: 100vh;
   background: #0f1115;
   color: #e6e9ef;
   display: flex;

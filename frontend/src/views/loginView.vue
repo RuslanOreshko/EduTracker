@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 import { useAuthStore } from "../stores/auth";
 import { useRouter } from "vue-router";
 
@@ -38,7 +38,7 @@ async function handleCredentialResponse(response) {
     await auth.loginWithGoogle(idToken);
     router.push("/dashboard");
   } catch (err) {
-    console.error(err);
+    console.error("Loggin error", err);
     errorText.value = "access denied. use corporate email.";
   }
 }
@@ -100,18 +100,11 @@ onMounted(async () => {
           викладачів.
         </div>
 
-        <div class="skeleton" v-if="status === 'loading'">
-          <div class="skeleton__line"></div>
-          <div class="skeleton__line small"></div>
+        <div class="authSlot">
+          <div id="googleBtn" class="google"></div>
         </div>
 
-        <div class="error" v-else-if="status === 'error'">
-          {{ errorText }}
-        </div>
-
-        <div id="googleBtn" class="google"></div>
-
-        <div v-if="errorText && status !== 'error'" class="error">
+        <div v-if="errorText" class="error">
           {{ errorText }}
         </div>
 
@@ -124,24 +117,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-body {
-  margin: 0;
-  font-family:
-    system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    sans-serif;
-  background:
-    radial-gradient(
-      1200px circle at 50% -200px,
-      rgba(120, 120, 255, 0.08),
-      transparent 60%
-    ),
-    #0b0e14;
-  color: #e6e9ef;
-}
-
 .page {
   min-height: 100vh;
   display: grid;
@@ -214,12 +189,19 @@ body {
   margin-bottom: 26px;
 }
 
+.authSlot {
+  margin-top: 18px;
+  margin-bottom: 14px;
+
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .google {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
-
-  min-height: 44px;
 }
 
 .footnote {
@@ -237,25 +219,6 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.skeleton {
-  margin-top: 16px;
-  padding: 14px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.skeleton__line {
-  height: 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  margin-bottom: 10px;
-}
-
-.skeleton__line.small {
-  width: 70%;
 }
 
 .error {
