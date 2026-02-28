@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response, Request
+from fastapi import APIRouter, Depends, Response, Request, HTTPException, status
 from sqlalchemy.orm import Session
 from jwt import DecodeError
 from edutracker.core.config import settings
@@ -22,7 +22,7 @@ def login_google(payload: GoogleLoginIn, response: Response, db : Session = Depe
         secure=False, # Потмі поміняю, ящко потрібно
         samesite="lax",
         max_age=60 * 60 * 24 * settings.REFRESH_TLL_DAYS,
-        path="api/v1/auth",
+        path="/api/v1/auth",
     )
 
     return AccessOut(access_token=result.access_token)
@@ -32,7 +32,10 @@ def login_google(payload: GoogleLoginIn, response: Response, db : Session = Depe
 def refresh(request: Request, db: Session = Depends(get_auth_db)) -> AccessOut:
     rt = request.cookies.get("refresh_token")
     if not rt:
-        raise PermissionError("Missing refresh token") # Поміняти на 401
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing refresh token"
+        )
 
     service = AuthService(db)
     access = service.refresh_access_token(refresh_token=rt)
@@ -45,5 +48,5 @@ def logout(request: Request, response: Response, db: Session = Depends(get_auth_
     if rt: 
         AuthService(db).logout(refresh_token=rt)
 
-    response.delete_cookie(key="refresh_token", path="/api/v1/routers/auth")
+    response.delete_cookie(key="refresh_token", path="/api/v1/auth")
     return {"ok": True}
