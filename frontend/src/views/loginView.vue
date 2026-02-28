@@ -82,7 +82,9 @@ onMounted(async () => {
   <div class="page">
     <div class="card">
       <div class="brand">
-        <div class="logo">ET</div>
+        <div class="logo">
+          <img src="/collage-logo.png" alt="Collage log" />
+        </div>
         <div>
           <div class="title">EduTracker</div>
           <div class="subtitle">вхід тільки через корпоративну пошту</div>
@@ -169,12 +171,19 @@ body {
 .logo {
   width: 46px;
   height: 46px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  font-weight: 700;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.logo img {
+  max-width: 70%;
+  max-height: 70%;
+  object-fit: contain;
 }
 
 .title {
