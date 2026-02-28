@@ -8,6 +8,7 @@ defineProps({
 
 <template>
   <button
+    v-bind="$attrs"
     class="btn"
     :class="`btn--${variant}`"
     :type="type"
@@ -50,5 +51,11 @@ defineProps({
 
 .btn--ghost:hover:enabled {
   background: rgba(255, 255, 255, 0.06);
+}
+
+.btn[data-active="true"] {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.26);
+  color: #fff;
 }
 </style>
