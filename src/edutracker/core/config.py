@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     # конфіги для підключення до бд
     DB_PATH: Path = BASE_DIR / "data"  / "edutracker.sqlite3"
     AUTH_DB_PATH: Path = BASE_DIR / "data" / "auth.sqlite3"
+    TEACHER_CATALOG_DB_PATH: Path = BASE_DIR / "data" / "teacher_catalog.sqlite3"
     DEBUG: bool = True
 
     # Конфіги для авторизації

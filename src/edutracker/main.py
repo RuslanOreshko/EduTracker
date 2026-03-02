@@ -24,13 +24,6 @@ app.middleware("http")(logging_middleware)
 BASE_DIR = Path(__file__).resolve().parent
 UI_DIR = BASE_DIR / "ui"
 
-app.mount(
-    "/ui", 
-    StaticFiles(directory=BASE_DIR / "ui", 
-    html=True), 
-    name="ui"
-)
-
 @app.get("/ui/{full_path:path}")
 def ui_spa_fallback(full_path: str):
     return FileResponse(UI_DIR / "index.html")
