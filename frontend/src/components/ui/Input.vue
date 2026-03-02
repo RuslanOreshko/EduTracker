@@ -1,8 +1,9 @@
 <script setup>
 defineProps({
-  modeValue: { type: [String, Number], default: "" },
+  modelValue: { type: [String, Number], default: "" },
   placeholder: { type: String, default: "" },
   type: { type: String, default: "" },
+  disable: { type: Boolean, default: false },
 });
 
 defineEmits(["update:modelValue"]);
@@ -13,7 +14,7 @@ defineEmits(["update:modelValue"]);
     class="input"
     :type="type"
     :placeholder="placeholder"
-    :value="modeValue"
+    :value="modelValue"
     @input="$emit('update:modelValue', $event.target.value)"
   />
 </template>
