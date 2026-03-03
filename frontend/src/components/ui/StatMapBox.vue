@@ -98,20 +98,18 @@ function onPick(name) {
 }
 
 .r_btn:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .k {
   font-weight: 700;
   font-size: 13px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .v {
   font-weight: 900;
   font-size: 13px;
-  opacity: 0.95;
+  color: rgba(255, 255, 255, 0.9);
 }
 </style>

@@ -7,11 +7,12 @@ import Button from "../ui/Button.vue";
 import Alert from "../ui/Alert.vue";
 import Skeleton from "../ui/Skeleton.vue";
 import DateRange from "../ui/DateRange.vue";
+import StatMapBox from "../ui/StatMapBox.vue";
+import TeacherAutocomplete from "../ui/TeacherAutocomplete.vue";
 
 import { getTeacherStats } from "../../api/teachers.api";
 import { useDateRange } from "../../composables/usedateRange";
 
-import TeacherAutocomplete from "../ui/TeacherAutocomplete.vue";
 import { useTeacherSuggest } from "../../composables/useTeachersSuggest";
 
 const teacherText = ref("");
@@ -30,16 +31,6 @@ const splitBySlash = ref(true);
 const dr = useDateRange();
 
 const lastLoadedTeacher = ref("");
-
-const groupsLimit = ref(8);
-const subjectsLimit = ref(8);
-
-function takeTop(obj, n) {
-  if (!obj) return [];
-  return Object.entries(obj)
-    .sort((a, b) => Number(b[1]) - Number(a[1]))
-    .slice(0, n);
-}
 
 async function onReset() {
   ts.close();
@@ -66,13 +57,12 @@ async function onPick(name) {
   teacherText.value = name;
   selectedTeacher.value = name;
 
-  if (lastLoadedTeacher.value && lastLoadedTeacher.value != name) {
+  if (lastLoadedTeacher.value && lastLoadedTeacher.value !== name) {
     resetFilters();
   }
 
   ts.close();
-
-  await load();
+  await load(true);
 }
 
 // вибір дати
@@ -80,21 +70,6 @@ function formatDate(iso) {
   if (!iso) return "";
   const [y, m, d] = iso.split("-");
   return `${d}.${m}.${y}`;
-}
-
-function sortMapdesc(obj) {
-  if (!obj) return [];
-  return Object.entries(obj)
-    .sort((a, b) => Number(b[1]) - Number(a[1]))
-    .reduce((acc, [k, v]) => {
-      acc[k] = v;
-      return acc;
-    }, {});
-}
-
-function takeFromSortedMap(sortedObj, n) {
-  if (!sortedObj) return [];
-  return Object.entries(sortedObj).slice(0, n);
 }
 
 function avgPerDay(total, byDate) {
@@ -137,9 +112,6 @@ async function load(fromPeak = false) {
   mustPickError.value = "";
   data.value = null;
 
-  groupsLimit.value = 8;
-  subjectsLimit.value = 8;
-
   const manual = teacherText.value.trim();
   const teacherForApi = selectedTeacher.value || manual;
 
@@ -154,11 +126,13 @@ async function load(fromPeak = false) {
   }
 
   if (
-    !fromPeak &&
+    !onPick &&
     lastLoadedTeacher.value &&
-    lastLoadedTeacher.value != teacherForApi
-  )
-    if (!selectedTeacher && ts.items.length > 0) return;
+    lastLoadedTeacher.value !== teacherForApi
+  ) {
+    resetFilters();
+  }
+
   loading.value = true;
 
   try {
@@ -286,62 +260,19 @@ async function load(fromPeak = false) {
       </div>
 
       <div class="cols">
-        <div class="box">
-          <div class="boxTitle">By group</div>
+        <StatMapBox
+          title="By group"
+          :map="data.by_group"
+          :step="8"
+          @pick="applyGroup"
+        />
 
-          <div class="rows">
-            <button
-              class="r_btn"
-              v-for="[k, v] in takeFromSortedMap(
-                sortMapdesc(data.by_group),
-                groupsLimit,
-              )"
-              :key="k"
-              type="button"
-              @click="applyGroup(k)"
-              :title="`Фільтр по групі: ${k}`"
-            >
-              <div class="k">{{ k }}</div>
-              <div class="v">{{ v }}</div>
-            </button>
-
-            <Button
-              v-if="Object.keys(data.by_group || {}).length > groupsLimit"
-              variant="ghost"
-              @click="groupsLimit += 8"
-            >
-              Show more
-            </Button>
-          </div>
-        </div>
-
-        <div class="box">
-          <div class="boxTitle">By subject</div>
-          <div class="rows">
-            <button
-              class="r_btn"
-              v-for="[k, v] in takeFromSortedMap(
-                sortMapdesc(data.by_subject),
-                subjectsLimit,
-              )"
-              :key="k"
-              type="button"
-              @click="applySubject(k)"
-              :title="`Фільтр по предмету: ${k}`"
-            >
-              <div class="k">{{ k }}</div>
-              <div class="v">{{ v }}</div>
-            </button>
-
-            <Button
-              v-if="Object.keys(data.by_subject || {}).length > subjectsLimit"
-              variant="ghost"
-              @click="subjectsLimit += 8"
-            >
-              Show more
-            </Button>
-          </div>
-        </div>
+        <StatMapBox
+          title="By subject"
+          :map="data.by_subject"
+          :step="8"
+          @pick="applySubject"
+        />
 
         <div class="box">
           <div class="boxTitle">By date (compact)</div>
@@ -533,26 +464,6 @@ async function load(fromPeak = false) {
 .rows {
   display: grid;
   gap: 8px;
-}
-
-.r_btn {
-  all: unset;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 10px;
-  align-items: center;
-
-  padding: 8px 10px;
-  border-radius: 12px;
-
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-
-  cursor: pointer;
-}
-
-.r_btn:hover {
-  background: rgba(255, 255, 255, 0.06);
 }
 
 .k {
