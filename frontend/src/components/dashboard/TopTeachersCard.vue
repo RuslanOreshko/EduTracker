@@ -67,9 +67,9 @@ onMounted(load);
 
     <div class="filters">
       <DateRange
-        :from="dr.dateFrom"
-        :to="dr.dateTo"
-        :activePreset="dr.activePreset"
+        :from="dr.dateFrom.value"
+        :to="dr.dateTo.value"
+        :activePresset="dr.activePresset"
         @update:from="
           (v) => {
             dr.setFrom(v);

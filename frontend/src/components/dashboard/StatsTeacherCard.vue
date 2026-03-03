@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { ref, watch } from "vue";
 
 import Card from "../ui/Card.vue";
 import Input from "../ui/Input.vue";
@@ -11,17 +11,39 @@ import DateRange from "../ui/DateRange.vue";
 import { getTeacherStats } from "../../api/teachers.api";
 import { useDateRange } from "../../composables/usedateRange";
 
+import TeacherAutocomplete from "../ui/TeacherAutocomplete.vue";
+import { useTeacherSuggest } from "../../composables/useTeachersSuggest";
+
+const teacherText = ref("");
+const selectedTeacher = ref("");
+const mustPickError = ref("");
+const ts = useTeacherSuggest({ debounceMs: 320, limit: 10 });
+
 const loading = ref(false);
 const error = ref("");
 const data = ref(null);
 
-const teacher = ref("");
 const subject = ref("");
 const group = ref("");
 const splitBySlash = ref(true);
 
 const dr = useDateRange();
 
+// Зручний вибір викладача
+watch(teacherText, (v) => {
+  mustPickError.value = "";
+  selectedTeacher.value = "";
+  ts.open.value = true;
+  ts.setQuery(v);
+});
+
+function onPick(name) {
+  teacherText.value = name;
+  selectedTeacher.value = name;
+  ts.close();
+}
+
+// вибір дати
 function formatDate(iso) {
   if (!iso) return "";
   const [y, m, d] = iso.split("-");
@@ -53,17 +75,27 @@ function lastDate(byDate) {
 
 async function load() {
   error.value = "";
+  mustPickError.value = "";
   data.value = null;
 
-  if (teacher.value.trim().length < 2) {
-    error.value = "Введи ім'я викладача...";
+  const manual = teacherText.value.trim();
+  const teacherForApi = selectedTeacher.value || manual;
+
+  if (teacherForApi.length < 2) {
+    mustPickError.value = "Введи хоча б 2 символи";
     return;
   }
+
+  if (!selectedTeacher.value && (ts.items.value?.length ?? 0) > 0) {
+    mustPickError.value = "Вибери викладача зі списку або допиши точніше";
+    return;
+  }
+
   loading.value = true;
 
   try {
     const res = await getTeacherStats({
-      teacher: teacher.value.trim(),
+      teacher: teacherForApi,
       subject: subject.value.trim() || undefined,
       group: group.value.trim() || undefined,
       splitTeachersBySlash: splitBySlash.value,
@@ -99,11 +131,20 @@ async function load() {
       <div class="grid2">
         <div>
           <div class="label">Teacher *</div>
-          <Input v-model="teacher" placeholder="Напр: ніколаєнко а. і." />
+          <TeacherAutocomplete
+            v-model="teacherText"
+            :items="ts.items.value"
+            :loading="ts.loading.value"
+            :open="ts.open.value"
+            placeholder="Напр: ніколаєнко а. і."
+            @open="() => (ts.open.value = true)"
+            @close="ts.close"
+            @select="onPick"
+          />
         </div>
 
         <div class="toggle">
-          <label class="chek">
+          <label class="check">
             <input type="checkbox" v-model="splitBySlash" />
             <span>Split by "/"</span>
           </label>
@@ -136,8 +177,9 @@ async function load() {
     </div>
 
     <Alert v-if="error" title="Error">{{ error }}</Alert>
+    <Alert v-if="mustPickError" title="Error">{{ mustPickError }}</Alert>
 
-    <div v-else-if="loading" class="skWarp">
+    <div v-else-if="loading" class="skWrap">
       <Skeleton height="14px" width="60%" />
       <Skeleton height="14px" width="40%" />
       <Skeleton height="14px" width="70%" />

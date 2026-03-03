@@ -67,3 +67,13 @@ export function getAvgPerWorkday({ teacher, dateFrom, dateTo } = {}) {
     },
   });
 }
+
+// апішка для зручного пошуку викладача
+export function suggestTeachers({ q, limit = 10 } = {}) {
+  return http.get("/teachers/suggest", {
+    params: {
+      q: q ?? "",
+      limit,
+    },
+  });
+}

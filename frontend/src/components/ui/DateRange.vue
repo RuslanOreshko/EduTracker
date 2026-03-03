@@ -33,16 +33,16 @@ const emit = defineEmits(["update:from", "update:to", "reset", "preset"]);
       </div>
     </div>
 
-    <div class="preset">
+    <div class="presets">
       <Button
         variant="ghost"
-        :data-active="activePreset === 'academic'"
+        :data-active="activePresset === 'academic'"
         @click="emit('preset', 'academic')"
         >Academic year</Button
       >
       <Button
         variant="ghost"
-        :data-active="activePreset === '30d'"
+        :data-active="activePresset === '30d'"
         @click="emit('preset', '30d')"
         >Last 30 days</Button
       >
