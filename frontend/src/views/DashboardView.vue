@@ -1,21 +1,33 @@
 <script setup>
 import TopTeachersCard from "../components/dashboard/TopTeachersCard.vue";
 import StatsTeacherCard from "../components/dashboard/StatsTeacherCard.vue";
+import CompareTeachersCard from "../components/dashboard/CompareTeachersCard.vue";
 </script>
 
 <template>
   <div class="grid">
     <TopTeachersCard />
     <StatsTeacherCard />
+
+    <CompareTeachersCard class="span2" />
   </div>
 </template>
 
 <style scoped>
 .grid {
   display: grid;
-  grid-template-columns: 520px 520px;
+  grid-template-columns: repeat(2, minmax(0, 520px));
   gap: 18px;
   align-items: start;
+  justify-content: center;
+}
+
+.grid > * {
+  min-width: 0;
+}
+
+.span2 {
+  grid-column: 1 / -1;
 }
 
 @media (max-width: 1100px) {
