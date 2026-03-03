@@ -13,6 +13,9 @@ from edutracker.api.middleware.exception_handlers import register_exception_hand
 
 from edutracker.application.jobs.scheduler import start_jobs, stop_jobs
 
+
+
+
 setup_logging(settings.DEBUG)
 
 app = FastAPI(title="EduTracker")

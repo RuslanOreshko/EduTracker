@@ -29,7 +29,32 @@ const splitBySlash = ref(true);
 
 const dr = useDateRange();
 
-// Зручний вибір викладача
+const lastLoadedTeacher = ref("");
+
+const groupsLimit = ref(8);
+const subjectsLimit = ref(8);
+
+function takeTop(obj, n) {
+  if (!obj) return [];
+  return Object.entries(obj)
+    .sort((a, b) => Number(b[1]) - Number(a[1]))
+    .slice(0, n);
+}
+
+async function onReset() {
+  ts.close();
+  dr.reset();
+
+  resetFilters();
+
+  error.value = "";
+  mustPickError.value = "";
+
+  if (selectedTeacher.value || teacherText.value.trim().length >= 2) {
+    await load();
+  }
+}
+
 watch(teacherText, (v) => {
   mustPickError.value = "";
   selectedTeacher.value = "";
@@ -37,10 +62,17 @@ watch(teacherText, (v) => {
   ts.setQuery(v);
 });
 
-function onPick(name) {
+async function onPick(name) {
   teacherText.value = name;
   selectedTeacher.value = name;
+
+  if (lastLoadedTeacher.value && lastLoadedTeacher.value != name) {
+    resetFilters();
+  }
+
   ts.close();
+
+  await load();
 }
 
 // вибір дати
@@ -60,6 +92,11 @@ function sortMapdesc(obj) {
     }, {});
 }
 
+function takeFromSortedMap(sortedObj, n) {
+  if (!sortedObj) return [];
+  return Object.entries(sortedObj).slice(0, n);
+}
+
 function avgPerDay(total, byDate) {
   const n = Object.keys(byDate || {}).length;
   if (!n) return "0";
@@ -73,10 +110,35 @@ function lastDate(byDate) {
   return keys[keys.length - 1];
 }
 
-async function load() {
+// функція для очищення полів, при зміні викладача
+function resetFilters() {
+  subject.value = "";
+  group.value = "";
+}
+
+// Зручний вибір групи/предмету
+async function applyGroup(g) {
+  if (typeof g !== "string") return;
+  group.value = g.trim();
+  if (!group.value) return;
+  await load();
+}
+
+async function applySubject(s) {
+  if (typeof s !== "string") return;
+  subject.value = s.trim();
+  if (!subject.value) return;
+  await load();
+}
+
+// Завантаження статистика
+async function load(fromPeak = false) {
   error.value = "";
   mustPickError.value = "";
   data.value = null;
+
+  groupsLimit.value = 8;
+  subjectsLimit.value = 8;
 
   const manual = teacherText.value.trim();
   const teacherForApi = selectedTeacher.value || manual;
@@ -91,6 +153,12 @@ async function load() {
     return;
   }
 
+  if (
+    !fromPeak &&
+    lastLoadedTeacher.value &&
+    lastLoadedTeacher.value != teacherForApi
+  )
+    if (!selectedTeacher && ts.items.length > 0) return;
   loading.value = true;
 
   try {
@@ -101,6 +169,8 @@ async function load() {
       splitTeachersBySlash: splitBySlash.value,
       ...dr.toApiParams(),
     });
+
+    lastLoadedTeacher.value = teacherForApi;
 
     data.value = res.data;
   } catch (e) {
@@ -168,10 +238,25 @@ async function load() {
           :from="dr.dateFrom.value"
           :to="dr.dateTo.value"
           :activePreset="dr.activePreset.value"
-          @update:from="(v) => dr.setFrom(v)"
-          @update:to="(v) => dr.setTo(v)"
-          @preset="(k) => dr.preset(k)"
-          @reset="() => dr.reset()"
+          @update:from="
+            (v) => {
+              dr.setFrom(v);
+              load();
+            }
+          "
+          @update:to="
+            (v) => {
+              dr.setTo(v);
+              load();
+            }
+          "
+          @preset="
+            (k) => {
+              dr.preset(k);
+              load();
+            }
+          "
+          @reset="onReset"
         />
       </div>
     </div>
@@ -205,28 +290,56 @@ async function load() {
           <div class="boxTitle">By group</div>
 
           <div class="rows">
-            <div
-              class="r"
-              v-for="(v, k) in sortMapdesc(data.by_group)"
+            <button
+              class="r_btn"
+              v-for="[k, v] in takeFromSortedMap(
+                sortMapdesc(data.by_group),
+                groupsLimit,
+              )"
               :key="k"
+              type="button"
+              @click="applyGroup(k)"
+              :title="`Фільтр по групі: ${k}`"
             >
               <div class="k">{{ k }}</div>
               <div class="v">{{ v }}</div>
-            </div>
+            </button>
+
+            <Button
+              v-if="Object.keys(data.by_group || {}).length > groupsLimit"
+              variant="ghost"
+              @click="groupsLimit += 8"
+            >
+              Show more
+            </Button>
           </div>
         </div>
 
         <div class="box">
           <div class="boxTitle">By subject</div>
           <div class="rows">
-            <div
-              class="r"
-              v-for="(v, k) in sortMapdesc(data.by_subject)"
+            <button
+              class="r_btn"
+              v-for="[k, v] in takeFromSortedMap(
+                sortMapdesc(data.by_subject),
+                subjectsLimit,
+              )"
               :key="k"
+              type="button"
+              @click="applySubject(k)"
+              :title="`Фільтр по предмету: ${k}`"
             >
               <div class="k">{{ k }}</div>
               <div class="v">{{ v }}</div>
-            </div>
+            </button>
+
+            <Button
+              v-if="Object.keys(data.by_subject || {}).length > subjectsLimit"
+              variant="ghost"
+              @click="subjectsLimit += 8"
+            >
+              Show more
+            </Button>
           </div>
         </div>
 
@@ -422,15 +535,24 @@ async function load() {
   gap: 8px;
 }
 
-.r {
+.r_btn {
+  all: unset;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 10px;
   align-items: center;
+
   padding: 8px 10px;
   border-radius: 12px;
+
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.05);
+
+  cursor: pointer;
+}
+
+.r_btn:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .k {
