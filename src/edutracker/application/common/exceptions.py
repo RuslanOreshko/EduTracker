@@ -24,3 +24,6 @@ class UserNotFoundError(Exception):
 
 class ForbiddenError(Exception):
     pass
+
+class TeacherCatalogUnavailableError(Exception):
+    pass

@@ -3,9 +3,11 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from typing import Iterable
+import logging
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 from edutracker.infrastructure.db.schedule_teachers.models import ScheduleRecord
 
@@ -23,6 +25,8 @@ from edutracker.infrastructure.db.schedule_teachers.database import create_sessi
 
 # бд teacher_catalog застосовуєтся для зручного вибору викладача
 
+
+logger = logging.getLogger("cli.rebuild_teacher_catalog")
 
 ScheduleSession = create_session_local(readonly=True)
 
@@ -99,6 +103,19 @@ def rebuild() -> None:
 
         catalog_db.commit()
         print(f"teachers unique={len(unique)}")
+
+    except OperationalError as e:
+        catalog_db.rollback()
+        logger.exception("SQLite operational error (locked?)", exc_info=e)
+        raise 
+    except SQLAlchemyError as e:
+        catalog_db.rollback()
+        logger.exception("SQLAlchemy error", exc_info=e)
+        raise
+    except Exception as e:
+        catalog_db.rollback()
+        logger.exception("Unexpected rebuild error", exc_info=e)
+        raise
 
     finally:
         schedule_db.close()

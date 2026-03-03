@@ -12,6 +12,7 @@ from edutracker.application.common.exceptions import (
     InvalidTokenPayloadError,
     UserNotFoundError,
     ForbiddenError,
+    TeacherCatalogUnavailableError,
 )
 
 logger = logging.getLogger("http")
@@ -92,4 +93,11 @@ def register_exception_handlers(app):
         return JSONResponse(
             status_code=403,
             content={"error": "forbidden"}
+        )
+    
+    @app.exception_handler(TeacherCatalogUnavailableError)
+    async def _(request: Request, exc: TeacherCatalogUnavailableError):
+        return JSONResponse(
+            status_code=503,
+            content={"error": "teacher_catalog_unavailable"}
         )

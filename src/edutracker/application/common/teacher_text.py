@@ -16,14 +16,17 @@ def split_teachers(raw: str) -> list[str]:
     parts = [p.strip() for p in raw.split(" / ")]
     return [p for p in parts if p]
 
+
 def clean_display_name(name: str) -> str:
     if not name:
         return ""
 
     name = name.strip()
-
     name = name.strip("()")
-
+    name = name.replace("’", "'")
     name = re.sub(r"\s+", " ", name)
+
+    # прибрати крапку в кінці
+    name = name.rstrip(".")
 
     return name.strip()

@@ -3,6 +3,7 @@ from .top_teachers import router as top_teacher_router
 from .peak_load_teacher_router import router as peak_load_router
 from .teachers_stats import router as stats_router
 from .teacher_compare import router as compare_router
+from .teachers_catalog_router import router as catalog_teacher_router
 
 
 __all__ = [
@@ -11,4 +12,5 @@ __all__ = [
     "peak_load_router",
     "stats_router",
     "compare_router",
+    "catalog_teacher_router",
 ]

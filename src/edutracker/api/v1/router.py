@@ -5,12 +5,14 @@ from edutracker.api.v1.routers.debug import router as debug_router
 from edutracker.api.v1.routers.auth.auth_router import router as auth_router
 from edutracker.api.v1.routers.auth.auth_my import router as auth_my
 
+
 from edutracker.api.v1.routers.teachers import (
     compare_router,
     stats_router,
     top_teacher_router,
     peak_load_router,
     avg_router,
+    catalog_teacher_router
 )
 
 
@@ -20,6 +22,7 @@ router.include_router(auth_my)
 
 router.include_router(auth_router)
 
+router.include_router(catalog_teacher_router)
 router.include_router(stats_router)
 router.include_router(top_teacher_router)
 router.include_router(compare_router)
