@@ -2,6 +2,7 @@
 import TopTeachersCard from "../components/dashboard/TopTeachersCard.vue";
 import StatsTeacherCard from "../components/dashboard/StatsTeacherCard.vue";
 import CompareTeachersCard from "../components/dashboard/CompareTeachersCard.vue";
+import AvgPerWorkdayCard from "../components/dashboard/AvgPerWorkdayCard.vue";
 </script>
 
 <template>
@@ -10,6 +11,9 @@ import CompareTeachersCard from "../components/dashboard/CompareTeachersCard.vue
     <StatsTeacherCard />
 
     <CompareTeachersCard class="span2" />
+    <div class="full">
+      <AvgPerWorkdayCard />
+    </div>
   </div>
 </template>
 
@@ -26,6 +30,10 @@ import CompareTeachersCard from "../components/dashboard/CompareTeachersCard.vue
   min-width: 0;
 }
 
+.full {
+  grid-column: 1 / -1;
+}
+
 .span2 {
   grid-column: 1 / -1;
 }
@@ -33,6 +41,9 @@ import CompareTeachersCard from "../components/dashboard/CompareTeachersCard.vue
 @media (max-width: 1100px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+  .full {
+    grid-column: auto;
   }
 }
 </style>
