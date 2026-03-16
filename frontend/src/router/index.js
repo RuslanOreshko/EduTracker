@@ -15,6 +15,7 @@ const routes = [
     path: "/",
     component: AppLayout,
     children: [
+      { path: "", redirect: "/dashboard" },
       { path: "dashboard", component: DashboardView },
       {
         path: "stats/average-lessons",
