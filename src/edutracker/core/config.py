@@ -25,6 +25,18 @@ class Settings(BaseSettings):
 
     GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID")
 
+    # Синхронізація налаштувань розкладу
+    SCHEDULE_SOURCE_MODE: str = "local"
+    SCHEDULE_REMOTE_DB_PATH: Path = BASE_DIR / "fake_remote" / "schedule.sqlite3"
+    SCHEDULE_LOCAL_CACHE_PATH: Path = BASE_DIR / "data" / "schedule_cache.sqlite3"
+    SCHEDULE_LOCAL_PREV_PATH: Path = BASE_DIR / "data" / "schedule_cache.prev.sqlite3"
+    SCHEDULE_LOCAL_TMP_PATH: Path = BASE_DIR / "data" / "schedule_cache.tmp.sqlite3"
+
+    SCHEDULE_SYNC_ENABLED: bool = False
+    SCHEDULE_SYNC_INTERVAL_HOURS: int = 24
+
+
+
     model_config = SettingsConfigDict(
         env_file= BASE_DIR / ".env",
         extra="ignore",
