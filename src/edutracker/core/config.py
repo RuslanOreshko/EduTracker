@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
+from pydantic import Field, field_validator
 from pathlib import Path
 import os
 
@@ -41,5 +41,32 @@ class Settings(BaseSettings):
         env_file= BASE_DIR / ".env",
         extra="ignore",
     )
+
+
+    @field_validator(
+        "DB_PATH",
+        "AUTH_DB_PATH",
+        "TEACHER_CATALOG_DB_PATH",
+        "SCHEDULE_REMOTE_DB_PATH",
+        "SCHEDULE_LOCAL_CACHE_PATH",
+        "SCHEDULE_LOCAL_PREV_PATH",
+        "SCHEDULE_LOCAL_TMP_PATH",
+        mode="before",
+    )
+    @classmethod
+    def resolve_path_from_base_dir(cls, value):
+        """
+        Якщо шлях у .env відносний, робимо його відносно BASE_DIR.
+        Якщо абсолютний — лишаємо як є.
+        """
+        if value is None:
+            return value
+
+        path = Path(value)
+
+        if path.is_absolute():
+            return path
+
+        return BASE_DIR / path
 
 settings = Settings()
