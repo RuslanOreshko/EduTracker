@@ -10,7 +10,8 @@ from edutracker.core.config import settings
 
 # Маршрутизатор посилань до бд
 def build_engine(*, readonly: bool) -> Engine:
-    db_path = Path(settings.DB_PATH).resolve()
+    # db_path = Path(settings.DB_PATH).resolve()
+    db_path = Path(settings.ACTIVE_SCHEDULE_DB_PATH).resolve()
 
     if readonly:
         if not db_path.exists():

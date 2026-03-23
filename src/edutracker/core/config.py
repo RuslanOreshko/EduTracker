@@ -36,6 +36,14 @@ class Settings(BaseSettings):
     SCHEDULE_SYNC_INTERVAL_HOURS: int = 24
 
 
+    # Тестове підлкючення до віддаленого серверу
+    SCHEDULE_SSH_HOST: str | None = None
+    SCHEDULE_SSH_PORT: int = 22
+    SCHEDULE_SSH_USER: str | None = None
+    SCHEDULE_SSH_PASSWORD: str | None = None
+    SCHEDULE_SSH_KEY_PATH: Path | None = None
+
+
 
     model_config = SettingsConfigDict(
         env_file= BASE_DIR / ".env",
@@ -44,6 +52,7 @@ class Settings(BaseSettings):
 
 
     @field_validator(
+        "SCHEDULE_SSH_KEY_PATH",
         "DB_PATH",
         "AUTH_DB_PATH",
         "TEACHER_CATALOG_DB_PATH",
@@ -53,6 +62,7 @@ class Settings(BaseSettings):
         "SCHEDULE_LOCAL_TMP_PATH",
         mode="before",
     )
+    
     @classmethod
     def resolve_path_from_base_dir(cls, value):
         """
@@ -68,5 +78,12 @@ class Settings(BaseSettings):
             return path
 
         return BASE_DIR / path
+
+    @property
+    def ACTIVE_SCHEDULE_DB_PATH(self) -> Path:
+        if self.SCHEDULE_SYNC_ENABLED:
+            return Path(self.SCHEDULE_LOCAL_CACHE_PATH)
+        
+        return Path(self.DB_PATH)
 
 settings = Settings()
