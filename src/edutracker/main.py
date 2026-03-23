@@ -9,7 +9,7 @@ from edutracker.core.config import settings
 from edutracker.core.logging import setup_logging
 
 from edutracker.application.services.schedule_sync_service import ScheduleSyncService
-from edutracker.infrastructure.remote.local_file_fetcher import build_local_fetcher
+from edutracker.infrastructure.remote.ssh_file_fetcher import SshFileFetcher
 from edutracker.infrastructure.remote.sqlite_file_validator import SQLiteFileValidator
 
 from edutracker.api.middleware.logging_middleware import logging_middleware
@@ -35,7 +35,7 @@ def startup_sync_schedule():
         return
     
     service = ScheduleSyncService(
-        fetcher=build_local_fetcher(),
+        fetcher=SshFileFetcher(),
         validator=SQLiteFileValidator()
     )
 
