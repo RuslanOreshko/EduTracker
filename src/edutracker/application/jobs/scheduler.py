@@ -25,8 +25,7 @@ def start_jobs():
         scheduler.add_job(
             run_schedule_sync,
             "interval",
-            minutes=1,
-            # hours=settings.SCHEDULE_SYNC_INTERVAL_HOURS,
+            hours=settings.SCHEDULE_SYNC_INTERVAL_HOURS,
             id="schedule_sync",
             replace_existing=True,
             max_instances=1,

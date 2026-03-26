@@ -4,6 +4,7 @@ import sqlite3
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine import Engine
+from sqlalchemy.pool import NullPool
 
 from edutracker.core.config import settings
 
@@ -29,12 +30,14 @@ def build_engine(*, readonly: bool) -> Engine:
         return create_engine(
             "sqlite+pysqlite://",
             creator=_creator,
+            poolclass=NullPool,
             pool_pre_ping=True
         )
 
     return create_engine(
             f"sqlite+pysqlite:///{db_path.as_posix()}",
             connect_args={"check_same_thread": False},
+            poolclass=NullPool,
             pool_pre_ping=True
         )
 
