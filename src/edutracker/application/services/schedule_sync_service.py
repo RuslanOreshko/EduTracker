@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import timedelta, datetime, timezone
+from typing import Protocol
 import logging
 
 from edutracker.core.config import settings
@@ -9,10 +10,15 @@ from edutracker.infrastructure.remote.sqlite_file_validator import SQLiteFileVal
 logger = logging.getLogger(__name__)
 
 
+class ScheduleFileFetcher(Protocol):
+    def fetch(self, source_path: Path, destination_path: Path) -> Path:
+        ...
+
+
 class ScheduleSyncService:
     def __init__(
         self, 
-        fetcher: SshFileFetcher,
+        fetcher: ScheduleFileFetcher,
         validator: SQLiteFileValidator
     ):
         self._fetcher = fetcher
@@ -54,6 +60,12 @@ class ScheduleSyncService:
         
         return self._current_path
 
+
+    def has_valid_current_copy(self) -> bool:
+        if not self._current_path.exists():
+            return False
+        
+        return self._is_valid_sqlite(self._current_path)
 
 
     def sync_now(self) -> Path:
