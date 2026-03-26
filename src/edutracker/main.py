@@ -1,8 +1,4 @@
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
-
-from pathlib import Path
 
 from edutracker.api.v1.router import router as v1_router
 from edutracker.core.config import settings
@@ -23,11 +19,8 @@ setup_logging(settings.DEBUG)
 app = FastAPI(title="EduTracker")
 
 app.include_router(v1_router, prefix="/api/v1")
-
 app.middleware("http")(logging_middleware)
 
-BASE_DIR = Path(__file__).resolve().parent
-UI_DIR = BASE_DIR / "ui"
 
 @app.on_event("startup")
 def startup_sync_schedule():
@@ -40,10 +33,6 @@ def startup_sync_schedule():
     )
 
     service.ensure_fresh_copy()
-
-@app.get("/ui/{full_path:path}")
-def ui_spa_fallback(full_path: str):
-    return FileResponse(UI_DIR / "index.html")
 
 @app.on_event("startup")
 def start_scheduler():
