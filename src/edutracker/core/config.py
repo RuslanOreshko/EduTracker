@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     SCHEDULE_LOCAL_TMP_PATH: Path = BASE_DIR / "data" / "schedule_cache.tmp.sqlite3"
 
     SCHEDULE_SYNC_ENABLED: bool = False
-    SCHEDULE_SYNC_INTERVAL_HOURS: int = 24
+    SCHEDULE_SYNC_INTERVAL_HOURS: int = 12
 
 
     # Тестове підлкючення до віддаленого серверу
