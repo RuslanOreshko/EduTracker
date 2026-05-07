@@ -1,0 +1,16 @@
+services:
+  backend:
+    build: .
+    container_name: edutracker_backend
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - .env
+
+    volumes:
+      - ./data:/app/data
+      - ./fake_remote:/app/fake_remote
+
+    restart: unless-stopped

@@ -6,3 +6,7 @@ __pycache__
 node_modules
 dist
 build
+data/
+fake_remote/
+.git/
+ui/node_modules/
