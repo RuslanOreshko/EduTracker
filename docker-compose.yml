@@ -14,3 +14,12 @@ services:
       - ./fake_remote:/app/fake_remote
 
     restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: edutracker_frontend
+
+    ports:
+      - "3000:80"
+
+    restart: unless-stopped

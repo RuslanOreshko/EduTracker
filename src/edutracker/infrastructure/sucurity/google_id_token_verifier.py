@@ -41,7 +41,7 @@ class GoogleIdTokenVerifier:
                 signing_key,
                 algorithms=["RS256"],
                 options={"require": ["exp", "iat", "sub"]},
-                audience=self._client_id,  # твій GOOGLE_CLIENT_ID
+                audience=self._client_id,  #GOOGLE_CLIENT_ID
                 issuer=GOOGLE_ISSUERS,
             )
 
